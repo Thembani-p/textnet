@@ -1,0 +1,38 @@
+<html>
+<body>
+
+<?php
+
+
+if(isset($_GET['resource'])) $graph_file = str_replace('_',' ',$_GET['resource']);
+else {
+	// why are you here?
+	// back to home
+	header('Location: index.php');
+  exit();
+}
+
+// reject user if resource does not exist
+
+$graph_file = 'files/'.$graph_file.'/graph.gexf';
+print_r($graph_file);
+//print_r($_SERVER['DOCUMENT_ROOT']);
+if(isset($graph_file) && strlen($graph_file) > 1)
+{
+	if(file_exists($graph_file))
+	{
+		?>
+		<script>
+		SigmaResource = <?= json_encode($graph_file)?>;
+		</script>
+		<?php
+		require("viz.php");
+	}
+	else echo "<br/>Cannot visualise graph, file doesn't exist. Create one <a href='./'>here</a>";
+	// throw new Exception("Cannot visualise graph, file doesn't exist. Create one <a href='./'>here</a>");
+} else echo "Cannot visualise graph, file doesn't exist. Create one <a href='./'>here</a>";
+
+?>
+
+</body>
+</html>

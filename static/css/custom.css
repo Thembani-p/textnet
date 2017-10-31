@@ -1,0 +1,69 @@
+#number-records-nd {
+    font-size: 35px;
+}
+
+#exportData {
+    width: 100%;
+}
+.dc-chart g.row text {
+    fill: black;
+
+}
+
+#location-row-chart {
+  max-height: 800px;
+  overflow-x: scroll;
+}
+
+#locale-row-chart {
+  max-height: 800px;
+  overflow-x: scroll;
+}
+
+.campaigns {
+  padding: 5px;
+  margin: 5px;
+  border-left: solid 2px #66c2a5;
+  cursor: pointer;
+}
+
+.campaign_detials{
+  padding: 8px;
+  margin: 5px;
+  border-left: solid 2px #efefef;
+}
+
+.red {
+  border-left: solid 2px #d53e4f;
+}
+
+.dc-legend{
+  display: block;
+  clear: both;
+}
+
+#time-chart2-clip > rect{
+  width: 100%;
+}
+
+#status-row-chart{
+  max-height: 330px;
+  overflow-x: hidden;
+}
+
+.hide{
+  display: hide;
+}
+
+.transBack{
+  float: left;
+  background: none;
+}
+
+.info{
+  overflow-x: scroll;
+}
+
+.group{
+  clear: both;
+}

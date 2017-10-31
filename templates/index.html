@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="static/lib/js/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="static/css/style.css">
+<title>Home | Upload Document</title>
+</head>
+
+<body>
+<div class="container-fluid">
+
+<div class="jumbotron">
+  <h1>Welcome to TextNet</h1>
+  <p> TextNet is a free online tool for creating text networks.
+    You can either insert plain text or upload a PDF document and TextNet will turn it into a network.
+    You have to name your project so you can easily download it later. </p>
+    <a href="plos_journal_tutorial.php" class="btn btn-primary">tutorial</a>
+    <a href="acknowledgements.php" class="btn btn-primary">acknowledgements</a>
+
+</div>
+
+<form enctype="multipart/form-data" method="post" action="/">
+
+<div class="row">
+  <div class="col-sm-10 col-lg-10">
+
+    <input class="form-control" type="text" name="name" placeholder="Name the Project" value="{% if(data) %}{{ data.name.strip() }}{% endif %}">
+
+  </div>
+</div>
+
+<div class="row">
+<div class="col-sm-5 col-lg-5">
+  <div class="form-group">
+
+    <label> Graph Window </label>
+
+    <select name="window" class="form-control">
+      {% for i in range(5,100,5) %}
+        <option {% if( data and (''~i == data.window))  %}{{ ' selected="selected"' }}{% endif %}>
+          {{ i }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+</div>
+<div class="col-sm-5 col-lg-5">
+<div class="form-group">
+  <label> Parts of Speech </label>
+
+  <select name="filter" class="form-control">
+    <option value="all"> all  </option>
+    <option value="nnp"> proper nouns </option>
+  </select>
+</div>
+
+</div>
+</div>
+
+<div class="row">
+  <div class="col-sm-10 col-lg-10">
+
+    <input class="upload btn" type="file" name="pdf">
+
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-sm-10 col-lg-10">
+
+    <textarea class="form-control" type="text" name="textline" row="5">{% if(data) %}{{ data.textline }}{% endif %}</textarea>
+
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-sm-10 col-lg-10">
+
+    <input class="btn btn-default" type="submit" value="submit">
+
+  </div>
+</div>
+
+</form>
+
+</div>
+</body>
+</html>
