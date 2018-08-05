@@ -1,82 +1,17 @@
 # -*- coding: utf-8 -*-
 
-import pandas as pd
-# from shapely.geometry import Point, shape
-import numpy as np
+
 #
 from flask import Flask, render_template, make_response, request, Response, redirect, send_from_directory, jsonify, url_for
-from collections import Counter
 # import rpy2.robjects as robjects
 # from rpy2.robjects import pandas2ri
 # pandas2ri.activate()
 
-import nltk
-import json
-import random
-
-# data_path = './input/'
-
-# curl -i -H "Content-Type: application/json" -X POST -d '{"text":"The area of study known as the history of mathematics is primarily an investigation into the origin of discoveries in mathematics and, to a lesser extent, an investigation into the mathematical methods and notation of the past. Before the modern age and the worldwide spread of knowledge, written examples of new mathematical developments have come to light only in a few locales. The most ancient mathematical texts available are Plimpton 322"}' http://localhost:7500/tokeniser
-
-def add_edges(tokenised_text,i,k,edges):
-    num_range = [i,k]
-    num_range.sort()
-    for j in range(num_range[0],num_range[1]):
-        if(tokenised_text[i] != tokenised_text[j]):
-            if((tokenised_text[i] in edges) and (tokenised_text[j] in edges[tokenised_text[i]])):
-                edges[tokenised_text[i]][tokenised_text[j]] += 1
-            elif(tokenised_text[i] in edges):
-                edges[tokenised_text[i]][tokenised_text[j]] = 1
-            else:
-                edges[tokenised_text[i]] = {}
-                edges[tokenised_text[i]][tokenised_text[j]] = 1
-    return edges
-
-def gen_graph(tokens,tagged,window):
-    # toggle tags
-    edges = {}
-    window = int(window)
-    tokenised_text = tokens
-
-    term_freq = Counter(tokenised_text)
-    unique_words = term_freq.keys()
-
-    # for each word add previous and next tokens
-    for i in range(len(unique_words)):
-        upper_limit = min(len(tokenised_text)-1,i+window)
-        lower_limit = max(0,i-window)
-        if(i != lower_limit):
-            edges = add_edges(tokenised_text,i,lower_limit,edges)
-        if(i != upper_limit):
-            edges = add_edges(tokenised_text,i,upper_limit,edges)
-
-    flat_nodes = []
-    edge_list = []
-    id = 1
-    for i in edges:
-        for j in edges[i]:
-            edge_list.append({"id": str(id),"source": i, "target": j, "weight": edges[i][j]})
-            flat_nodes.append(i)
-            flat_nodes.append(j)
-            id += 1
-
-    nodes_count = Counter(flat_nodes)
-    nodes = []
-    color = {"C": '#a6cee3',"J": '#1f78b4',"N": '#b2df8a',"R": '#33a02c',"U": '#fb9a99',"V": '#e31a1c',"T": '#fdbf6f',"B": '#ff7f00',"D": '#cab2d6',"I": '#6a3d9a',"Z": '#ffff99',".": "#BFCFFE"}
-    # color = {"C": "#b35806", "J": "#e08214", "N": "#fdb863", "R": "#fee0b6", "U": "#f7f7f7", "V": "#d8daeb", "T": "#b2abd2", "B": "#8073ac", "D": "#342788", "I": "#DDDDDD", "Z": "#E11188", ".": "#BFCFFE"}
-
-    for idx,elem in enumerate(nodes_count):
-        this_tag = tagged[elem][0].upper()
-        if(this_tag in color):
-            this_color = color[this_tag]
-        else:
-            this_color = "#333333"
-        nodes.append({"id":elem, "label":elem, "size":nodes_count[elem], "postag":tagged[elem], "color": this_color,"x":random.randint(1,100), "y":random.randint(1,100)})
-
-
-    graph = {'nodes':nodes, 'edges':edge_list}
-
-    return graph
+# get textnet functions
+from textnet.utils import *
+from textnet.text import *
+from textnet.graphs import *
+from textnet.forms import *
 
 app = Flask(__name__)
 
@@ -84,6 +19,11 @@ data_path = "input/"
 
 @app.route("/", methods=['GET','POST'])
 def index():
+    # TODO:
+    # pre-process project names and turn them into folders
+    # consider project structures 
+    # differentiate between private and public projects
+
     # should go to a splash that shows the different projects
 
     # textNet index*
@@ -98,64 +38,96 @@ def index():
     # print(request.method)
 
     if request.method == 'POST':
+        # there should be no puntuation in the title
+        # spaces will be replaced by underscores
         if (len(request.form['name'].strip()) > 1) and  (len(request.form['textline'].strip()) > 1):
-            ##########################################
-            # tokenise
-            tokens = nltk.word_tokenize(request.form["textline"])
 
-            ##########################################
-            # tag
-            tagged = nltk.pos_tag(tokens)
+            graph_name = new_graph(request.form["textline"],request.form["window"], request.form['name'])
 
-
-            tokens = [elem[0] for elem in tagged]
-            tagged = {elem[0]:elem[1] for elem in tagged}
-
-            ##########################################
-            # create graph
-            graph = gen_graph(tokens,tagged,request.form["window"])
-
-            with open('files/'+request.form['name'].strip()+'.json', 'w') as outfile:
-                json.dump(graph, outfile)
-
-            return redirect(url_for('visualisation',graph_name=request.form['name'].strip()+'.json'))
+            return redirect(url_for('graph_options_view',graph_name=graph_name))
         else:
-            print(request.form)
+            # print(request.form)
             # request.form['window'] = int(request.form['window'])
             return render_template("index.html", data = request.form)
     else:
         return render_template("index.html")
 
-@app.route("/visualisation", methods=['GET','POST'])
-def visualisation():
+@app.route("/options/<string:graph_name>")
+def graph_options_view(graph_name):
+
+    # this is where the graph should be redirected to after upload
+    # this page will provide an overview of the graph
+    #   number of nodes and edges*
+    #   count of different part of speech*
+    #   merge candidates and form to merge nodes
+    #   option to continue to view limited version of graph (say upto 2500 nodes)*
+    #       without query capability this would require saving a filtered
+    #       visualisation version of the graph
+    #   option to download graph in graphml format
+    #   other options like community detection etc
+
+    return render_template("options.html", graph_options=graph_options(graph_name), project_name=graph_name)
+
+@app.route("/merge/<string:graph_name>", methods=['POST','GET'])
+def merge_view(graph_name):
+    """
+        the merge table can only change if the graph changes for the project
+            if there is form data that means the merge table has already been
+            created. The merge table only needs to be computed once then saved.
+
+            therefore project will be locked
+
+    """
+    # create merge table or pull the existing one
+
+    merge_table = merge_candidates(graph_name)
+    form_data = pull_merge_form_data(graph_name)
+
+    print('form data',form_data)
+
+    if request.method == 'POST':
+        # store the form output
+        save_merge_form_data(request.form,graph_name)
+
+        # merge the nodes and store merged graph
+        merge_nodes(graph_name)
+
+        return render_template("merge.html", merge_table=merge_table, project_name=graph_name, data = request.form)
+    elif form_data:
+        print('form data',True)
+        return render_template("merge.html", merge_table=merge_table, project_name=graph_name, data = form_data)
+    else:
+        # this provides the accept/reject form for merging nodes
+        return render_template("merge.html", merge_table=merge_table, project_name=graph_name)
+
+@app.route("/visualisation/<string:graph_name>", methods=['GET','POST'])
+def visualisation(graph_name):
     # accept graph and visualise it
     # select colors
     # upper degree filter*
-    graph_name = request.args['graph_name']
+    # graph_name = request.args['graph_name']
     return render_template("viz.html", graph_name=graph_name)
 
 @app.route("/files/<string:filename>", methods=['GET'])
 def get_files(filename):
     # accept graph and visualise it
-    with open('files/' + filename,'r',encoding="utf-8") as content_file:
-        return content_file.read()
+    return read_file(filename)
 
 @app.route("/tokeniser", methods=['POST'])
 def basic_tokeniser():
     # basic tokeniser
-    tokens = nltk.word_tokenize(request.json["text"])
+    tokens = tokeniser(request.json["text"])
+
     return json.dumps({'tokens':tokens})
 
 @app.route("/tagger", methods=['POST'])
 def basic_tagger():
-    # taggs tokenised list
-    tagged = nltk.pos_tag(request.json["tokens"])
+    # chunked POS tagger
+    tagged = tag_sentences(request.form["textline"])
 
+    # {'tokens':tokens, 'tagged':tagged}
 
-    tokens = [elem[0] for elem in tagged]
-    tagged = {elem[0]:elem[1] for elem in tagged}
-
-    return json.dumps({'tokens':tokens, 'tagged':tagged})
+    return json.dumps({'tagged':tagged})
 
 @app.route("/graph/<int:window>", methods=['GET','POST'])
 def graph(window):
@@ -171,4 +143,4 @@ def graph(window):
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0',port=7500,debug=True)
+    app.run(host='0.0.0.0',port=8500,debug=True)
