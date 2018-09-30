@@ -229,6 +229,10 @@ def to_igraph(graph):
 
     # add node attributes
     #   label, size, postag, colour
+    graphi.vs['label'] = node_list
+    graphi.vs['size'] = [i['size'] for i in graph['nodes']]
+    graphi.vs['postag'] = [i['postag'] for i in graph['nodes']]
+    graphi.vs['color'] = [i['color'] for i in graph['nodes']]
     # add edge attributes
     #   weight
 
