@@ -15,7 +15,7 @@
   <p> TextNet is a free online tool for creating text networks.
     You can either insert plain text or upload a PDF document and TextNet will turn it into a network.
     You have to name your project so you can easily download it later. </p>
-    <!-- <a href="{{ url_for('index') }}" class="btn btn-primary">home</a> -->
+    <a href="{{ url_for('index') }}" class="btn btn-primary">home</a>
     <a href="plos_journal_tutorial.php" class="btn btn-primary">tutorial</a>
     <a href="acknowledgements.php" class="btn btn-primary">acknowledgements</a>
 
@@ -36,8 +36,10 @@
 
 
     <a id="viz-btn" class="btn btn-default" href="{{url_for('visualisation',graph_name=project_name)}}">visualisation</a>
-    <a id="export-btn" class="btn btn-default" href="{{url_for('get_files',filename=project_name~'.json')}}">export</a>
-    <a id="export-btn" class="btn btn-default" href="{{url_for('graph_options_view',graph_name=project_name)}}">options</a>
+    <a id="merge-btn" class="btn btn-default" href="{{url_for('merge_view',graph_name=project_name)}}">merge</a>
+    |
+    <a id="export-btn" class="btn btn-default" href="{{url_for('get_files',filename=project_name~'.json')}}">export json</a>
+    <a id="export-btn" class="btn btn-default" href="{{url_for('get_files',filename=project_name~'.graphml')}}">export grapml</a>
 
 
   </div>

@@ -54,7 +54,7 @@ def gen_graph(tokens,tagged,window):
             edges = add_edges(tokenised_text,i,lower_limit,edges)
         if(i != upper_limit):
             edges = add_edges(tokenised_text,i,upper_limit,edges)
-
+    print('edges',edges)
     flat_nodes = []
     edge_list = []
     id = 1
@@ -82,17 +82,17 @@ def gen_graph(tokens,tagged,window):
 
     """
     color = {"C": "#b35806",
-                "J": "#e08214",
-                "N": "#fdb863",
-                "R": "#fee0b6",
-                "U": "#f7f7f7",
-                "V": "#d8daeb",
-                "T": "#b2abd2",
-                "B": "#8073ac",
-                "D": "#342788",
-                "I": "#DDDDDD",
-                "Z": "#E11188",
-                ".": "#BFCFFE"}
+             "J": "#e08214",
+             "N": "#fdb863",
+             "R": "#fee0b6",
+             "U": "#f7f7f7",
+             "V": "#d8daeb",
+             "T": "#b2abd2",
+             "B": "#8073ac",
+             "D": "#342788",
+             "I": "#DDDDDD",
+             "Z": "#E11188",
+             ".": "#BFCFFE"}
     """
 
     for idx,elem in enumerate(nodes_count):
@@ -127,6 +127,10 @@ def new_graph(text,window,name):
     # conditions should be applied to the names
     graph_name = name.strip()
     write_json_file(graph,graph_name)
+
+    # save full igraph
+    graphi = to_igraph(graph)
+    save_igraph(graphi,graph_name)
 
     return graph_name
 
@@ -229,6 +233,11 @@ def to_igraph(graph):
     #   weight
 
     return graphi
+
+def save_igraph(graphi,project_name):
+    # print(graphi)
+    graphi.write_graphml(os.path.join('files','.'.join([project_name,'graphml'])))
+    return True
 
 def create_merge_table(graph,graph_dict):
     # TODO:
@@ -336,6 +345,8 @@ def merge_nodes(graph_name):
 
 
     write_json_file(graph, ljoin([graph_name,'merged'],'_'))
+    graphi = to_igraph(graph)
+    save_igraph(graphi,graph_name)
 
     # get or create limited graph
     viz_name = ljoin([graph_name,'viz'],'_')

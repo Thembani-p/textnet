@@ -65,9 +65,16 @@
     top: 5%;
   }
 
+  #options-btn {
+    position: absolute;
+    left: 50%;
+    top: 5%;
+  }
+
+
   #control-pane-btn {
     position: absolute;
-    right: 35%;
+    left: 65%;
     top: 5%;
   }
 
@@ -154,7 +161,7 @@
 
 </div>
 <button id="instructions-btn" class="btn btn-default">Node panel</button>
-<a class="btn btn-default" href="{{url_for('graph_options_view',graph_name=graph_name)}}">options</a>
+<a id="options-btn" class="btn btn-default" href="{{url_for('graph_options_view',graph_name=graph_name)}}">Options</a>
 <button id="control-pane-btn" class="btn btn-default">Filter panel</button>
 
 <div id="info">

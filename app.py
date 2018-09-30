@@ -21,7 +21,7 @@ data_path = "input/"
 def index():
     # TODO:
     # pre-process project names and turn them into folders
-    # consider project structures 
+    # consider project structures
     # differentiate between private and public projects
 
     # should go to a splash that shows the different projects
@@ -123,11 +123,11 @@ def basic_tokeniser():
 @app.route("/tagger", methods=['POST'])
 def basic_tagger():
     # chunked POS tagger
-    tagged = tag_sentences(request.form["textline"])
+    tagged = tag_sentences(request.json["text"])
 
     # {'tokens':tokens, 'tagged':tagged}
 
-    return json.dumps({'tagged':tagged})
+    return json.dumps({'tokens':tagged[0],'tagged':tagged[1]})
 
 @app.route("/graph/<int:window>", methods=['GET','POST'])
 def graph(window):
