@@ -12,6 +12,7 @@ import os.path
 from .text import *
 from .utils import *
 from .forms import *
+from .models import Project
 # data_path = './input/'
 
 # curl -i -H "Content-Type: application/json" -X POST -d '{"text":"The area of study known as the history of mathematics is primarily an investigation into the origin of discoveries in mathematics and, to a lesser extent, an investigation into the mathematical methods and notation of the past. Before the modern age and the worldwide spread of knowledge, written examples of new mathematical developments have come to light only in a few locales. The most ancient mathematical texts available are Plimpton 322"}' http://localhost:7500/tokeniser
@@ -126,11 +127,15 @@ def new_graph(text,window,name,filter):
 
     # conditions should be applied to the names
     graph_name = name.strip()
-    write_json_file(graph,graph_name)
+    # write_json_file(graph, graph_name)
+
+    project = Project(graph_name)
+    project.write(graph, project.full)
 
     # save full igraph
     graphi = to_igraph(graph)
-    save_igraph(graphi,graph_name)
+    # save_igraph(graphi,graph_name)
+    project.write(graphi, project.graphml)
 
     return graph_name
 
@@ -174,11 +179,14 @@ def viz_graph(graph,limit=2500):
     return viz_graph
 
 def graph_options(graph_name):
+    # runs on /options/graph_name
+    project = Project(graph_name)
 
     graph_stats = {}
 
     # get graph
-    graph = read_json_file(graph_name)
+    # graph = read_json_file(graph_name)
+    graph = project.read(project.full)
 
     node_count = len(graph['nodes'])
     edge_count = len(graph['edges'])
@@ -191,12 +199,14 @@ def graph_options(graph_name):
     graph_stats['Full Graph']['Postag Count'] = postag_count
 
     # get or create limited graph
-    viz_name = ljoin([graph_name,'viz'],'_')
-    if file_exists(project_file(viz_name)):
-        limited_graph = read_json_file(viz_name)
+    # viz_name = ljoin([graph_name,'viz'],'_')
+    if file_exists(project.viz.uri):
+        # limited_graph = read_json_file(viz_name)
+        limited_graph = project.read(project.viz)
     else:
         limited_graph = viz_graph(graph,1000)
-        write_json_file(limited_graph,viz_name)
+        # write_json_file(limited_graph,viz_name)
+        project.write(limited_graph, project.viz)
 
     graph_stats['Limited Graph'] = {}
     graph_stats['Limited Graph']['Node Count'] = len(limited_graph['nodes'])
@@ -206,9 +216,10 @@ def graph_options(graph_name):
     # https://gist.github.com/jboynyc/11dcd73b84f8da02490e6654d5c07700
 
     # get merged graph
-    merged_name = ljoin([graph_name,'merged'],'_')
-    if file_exists(project_file(merged_name)):
-        merged_graph = read_json_file(merged_name)
+    # merged_name = ljoin([graph_name,'merged'],'_')
+    if file_exists(project.merged.uri):
+        # merged_graph = read_json_file(merged_name)
+        merged_graph = project.read(project.merged)
         graph_stats['Merged Graph'] = {}
         graph_stats['Merged Graph']['Node Count'] = len(merged_graph['nodes'])
         graph_stats['Merged Graph']['Edge Count'] = len(merged_graph['edges'])
@@ -288,27 +299,31 @@ def merge_candidates(graph_name):
     """
         create or read and return the merge table
     """
+    project = Project(graph_name)
 
 
-    merge_filename = merge_file_name(graph_name)
-    json_filename = project_file(merge_filename,ext='json')
+    # merge_filename = merge_file_name(graph_name)
+    # json_filename = project_file(merge_filename,ext='json')
 
-    print(json_filename)
+    # print(json_filename)
 
-    if not file_exists(json_filename):
+    if not file_exists(project.merge.uri):
         print('running new merge table')
-        graph_dict = read_json_file(graph_name)
+        # graph_dict = read_json_file(graph_name)
+        graph_dict = project.read(project.full)
 
         graphi = to_igraph(graph_dict)
 
         merge_table = create_merge_table(graphi,graph_dict)
 
-        write_json_file(merge_table, merge_filename)
+        # write_json_file(merge_table, merge_filename)
+        project.write(merge_table, project.merge)
 
     else:
         # print('pulling old merge table')
-        print(merge_filename)
-        merge_table = json_if_exists(merge_filename)
+        # print(merge_filename)
+        # merge_table = json_if_exists(merge_filename)
+        merge_table = project.read(project.merge)
         # print('merge table',merge_table)
 
     return merge_table
@@ -320,9 +335,15 @@ def merge_nodes(graph_name):
     #      delete current
     #    identify current edges
     #      rename current edge
+    project = Project(graph_name)
 
-    accept_table = pull_merge_form_data(graph_name)
-    graph = read_json_file(graph_name)
+    # accept_table = pull_merge_form_data(graph_name)
+    if file_exists(project.merge_pickle.uri):
+        accept_table = project.read(project.merge_pickle)
+    else:
+        accept_table = False
+    # graph = read_json_file(graph_name)
+    graph = project.read(project.full)
 
     for node_label in accept_table:
         print(node_label, accept_table[node_label])
@@ -348,11 +369,14 @@ def merge_nodes(graph_name):
                     graph['edges'][idx]['source'] = accept_table[node_label]
 
 
-    write_json_file(graph, ljoin([graph_name,'merged'],'_'))
+    # write_json_file(graph, ljoin([graph_name,'merged'],'_
+    project.write(graph, project.merged)
     graphi = to_igraph(graph)
-    save_igraph(graphi,graph_name)
+    # save_igraph(graphi,graph_name)
+    project.write(graphi, project.graphml)
 
     # get or create limited graph
-    viz_name = ljoin([graph_name,'viz'],'_')
+    # viz_name = ljoin([graph_name,'viz'],'_')
     limited_graph = viz_graph(graph,1000)
-    write_json_file(limited_graph,viz_name)
+    # write_json_file(limited_graph,viz_name)
+    project.write(limited_graph, project.viz)

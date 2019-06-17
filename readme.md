@@ -54,6 +54,19 @@ import nltk
 nltk.download('punkt')
 ```
 
+## Data model
+
+- Project
+  - methods
+    - read (data)
+    - write (object, data)
+  - data | uri (type)
+    - text (txt)
+    - full (json)
+    - merge_pickle (pickle)
+    - merged (json)
+    - viz (json)
+    - graphml (graphml)
 
 ## Tutorial
 
@@ -67,11 +80,14 @@ for window in [25, 50, 75]:
   for filter in [None, 'nnp']:
     filter_string = '' if filter == None else 'f'
     project_name = ''.join(['plos', str(window), filter_string])
-    new_graph(textline, window, project_name, filter)
+    graph_name = new_graph(textline, window, project_name, filter)
+    graph_options(graph_name)
 ```
 
 ## Updates
 
+- data model for file system*
+- adjust data model for cloud storage
 - wtforms for form handling
 - module project structure with manage.py
 - unit tests for textnet module

@@ -2,6 +2,7 @@
 
 
 #
+import os
 from flask import Flask, render_template, make_response, request, Response, \
                      redirect, send_from_directory, jsonify, url_for, flash
 # import rpy2.robjects as robjects
@@ -18,7 +19,7 @@ app = Flask(__name__)
 app.secret_key = 'itIsWhatIam,No?'
 data_path = "input/"
 
-@app.route("/", methods=['GET','POST'])
+@app.route("/")
 def index():
     # TODO:
     # pre-process project names and turn them into folders
@@ -72,11 +73,11 @@ def index():
     else:
         return render_template("index.html")
 
-@app.route("/acknowledgements", methods=['GET','POST'])
+@app.route("/acknowledgements")
 def acknowledgements():
     return render_template("acknowledgements.html")
 
-@app.route("/tutorial", methods=['GET','POST'])
+@app.route("/tutorial")
 def tutorial():
     return render_template("tutorial.html")
 
@@ -95,7 +96,8 @@ def graph_options_view(graph_name):
     #   other options like community detection etc
 
     try:
-        graph = read_json_file(graph_name.strip())
+        project = Project(graph_name)
+        graph = project.read(project.full)
 
         return render_template("options.html", graph_options=graph_options(graph_name), project_name=graph_name)
     except:
@@ -113,26 +115,37 @@ def merge_view(graph_name):
 
     """
     # create merge table or pull the existing one
+    try:
+        project = Project(graph_name)
+        graph = project.read(project.full)
 
-    merge_table = merge_candidates(graph_name)
-    form_data = pull_merge_form_data(graph_name)
+        merge_table = merge_candidates(graph_name)
+        if file_exists(project.merge_pickle.uri):
+            form_data = project.read(project.merge_pickle)
+        else:
+            form_data = False
+        # form_data = pull_merge_form_data(graph_name)
 
-    print('form data',form_data)
+        print('form data',form_data)
 
-    if request.method == 'POST':
-        # store the form output
-        save_merge_form_data(request.form,graph_name)
+        if request.method == 'POST':
+            # store the form output
+            # save_merge_form_data(request.form,graph_name)
+            project.write(request.form, project.merge_pickle)
 
-        # merge the nodes and store merged graph
-        merge_nodes(graph_name)
+            # merge the nodes and store merged graph
+            merge_nodes(graph_name)
 
-        return render_template("merge.html", merge_table=merge_table, project_name=graph_name, data = request.form)
-    elif form_data:
-        print('form data',True)
-        return render_template("merge.html", merge_table=merge_table, project_name=graph_name, data = form_data)
-    else:
-        # this provides the accept/reject form for merging nodes
-        return render_template("merge.html", merge_table=merge_table, project_name=graph_name)
+            return render_template("merge.html", merge_table=merge_table, project_name=graph_name, data = request.form)
+        elif form_data:
+            print('form data',True)
+            return render_template("merge.html", merge_table=merge_table, project_name=graph_name, data = form_data)
+        else:
+            # this provides the accept/reject form for merging nodes
+            return render_template("merge.html", merge_table=merge_table, project_name=graph_name)
+    except:
+        flash("Project {} doesn't exists maybe create one?".format(graph_name.strip()), 'danger')
+        return redirect(url_for('index'))
 
 @app.route("/visualisation/<string:graph_name>", methods=['GET','POST'])
 def visualisation(graph_name):
@@ -142,10 +155,16 @@ def visualisation(graph_name):
     # graph_name = request.args['graph_name']
     return render_template("viz.html", graph_name=graph_name)
 
-@app.route("/files/<string:filename>", methods=['GET'])
-def get_files(filename):
+@app.route("/files/<string:graph_name>/<string:filename>", methods=['GET'])
+def get_files(graph_name, filename):
     # accept graph and visualise it
-    return read_file(filename)
+    return read_file(os.path.join(graph_name, filename))
+
+@app.route("/projects")
+def projects():
+
+    projects = os.listdir('files')
+    return render_template("projects.html", projects=projects)
 
 @app.route("/tokeniser", methods=['POST'])
 def basic_tokeniser():
