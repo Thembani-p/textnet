@@ -2,7 +2,8 @@
 
 
 #
-from flask import Flask, render_template, make_response, request, Response, redirect, send_from_directory, jsonify, url_for
+from flask import Flask, render_template, make_response, request, Response, \
+                     redirect, send_from_directory, jsonify, url_for, flash
 # import rpy2.robjects as robjects
 # from rpy2.robjects import pandas2ri
 # pandas2ri.activate()
@@ -14,7 +15,7 @@ from textnet.graphs import *
 from textnet.forms import *
 
 app = Flask(__name__)
-
+app.secret_key = 'itIsWhatIam,No?'
 data_path = "input/"
 
 @app.route("/", methods=['GET','POST'])
@@ -40,17 +41,44 @@ def index():
     if request.method == 'POST':
         # there should be no puntuation in the title
         # spaces will be replaced by underscores
+
+        # wtforms
         if (len(request.form['name'].strip()) > 1) and  (len(request.form['textline'].strip()) > 1):
 
-            graph_name = new_graph(request.form["textline"],request.form["window"], request.form['name'])
+            try:
+                graph = read_json_file(request.form['name'].strip())
 
-            return redirect(url_for('graph_options_view',graph_name=graph_name))
+                print('graph exists', len(graph))
+                print('\n')
+
+                # insert flash for project already existing
+                flash('Project already exists :(', 'danger')
+                return render_template("index.html", data = request.form)
+
+            except:
+                if request.form['filter'] == 'all':
+                    filter = None
+                else:
+                    filter = request.form['filter']
+
+                graph_name = new_graph(request.form["textline"],request.form["window"], request.form['name'], filter)
+
+                return redirect(url_for('graph_options_view',graph_name=graph_name))
+
         else:
             # print(request.form)
             # request.form['window'] = int(request.form['window'])
             return render_template("index.html", data = request.form)
     else:
         return render_template("index.html")
+
+@app.route("/acknowledgements", methods=['GET','POST'])
+def acknowledgements():
+    return render_template("acknowledgements.html")
+
+@app.route("/tutorial", methods=['GET','POST'])
+def tutorial():
+    return render_template("tutorial.html")
 
 @app.route("/options/<string:graph_name>")
 def graph_options_view(graph_name):
@@ -66,7 +94,13 @@ def graph_options_view(graph_name):
     #   option to download graph in graphml format
     #   other options like community detection etc
 
-    return render_template("options.html", graph_options=graph_options(graph_name), project_name=graph_name)
+    try:
+        graph = read_json_file(graph_name.strip())
+
+        return render_template("options.html", graph_options=graph_options(graph_name), project_name=graph_name)
+    except:
+        flash("Project {} doesn't exists maybe create one?".format(graph_name.strip()), 'danger')
+        return redirect(url_for('index'))
 
 @app.route("/merge/<string:graph_name>", methods=['POST','GET'])
 def merge_view(graph_name):

@@ -1,0 +1,18 @@
+*.pyc
+*.sqlite
+.DS_Store
+.coverage
+renv
+env
+.env
+migrations
+tmp
+__pycache__
+env.sh
+tn_env
+
+# data files
+stanford
+*.json
+*.graphml
+*.pickle

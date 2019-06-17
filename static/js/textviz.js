@@ -70,6 +70,43 @@ var special_cats_map = [{"idx": "45", "name": "Eskom"},
   {"idx": "5", "name": "Public Enterprises"},
   {"idx": "83", "name": "Environmental Department"}
 ],
+  cat_descriptions = {'CC': 'Coordinating conjunction',
+  'CD':	'Cardinal number',
+  'DT':   'Determiner',
+  'EX':   'Existential there',
+  'FW':   'Foreign word',
+  'IN':   'Preposition or subordinating conjunction',
+  'JJ':   'Adjective',
+  'JJR':  'Adjective, comparative',
+  'JJS':  'Adjective, superlative',
+  'LS':   'List item marker',
+  'MD':   'Modal',
+  'NN':   'Noun, singular or mass',
+  'NNS':  'Noun, plural',
+  'NNP':  'Proper noun, singular',
+  'NNPS': 'Proper noun, plural',
+  'PDT':  'Predeterminer',
+  'POS':  'Possessive ending',
+  'PRP':  'Personal pronoun',
+  'PRP$':	'Possessive pronoun',
+  'RB':  'Adverb',
+  'RBR': 'Adverb, comparative',
+  'RBS': 'Adverb, superlative',
+  'RP': 'Particle',
+  'SYM':'Symbol',
+  'TO': 'to'  ,
+  'UH': 'Interjection',
+  'VB': 'Verb, base form',
+  'VBD':'Verb, past tense',
+  'VBG': 'Verb, gerund or present participle',
+  'VBN': 'Verb, past participle',
+  'VBP': 'Verb, non-3rd person singular present',
+  'VBZ': 'Verb, 3rd person singular present',
+  'WDT': 'Wh-determiner',
+  'WP':  'Wh-pronoun',
+  'WP$': 'Possessive wh-pronoun',
+  'WRB': 'Wh-adverb'
+  },
   special_cats = [];
   for(i in special_cats_map) special_cats[special_cats_map[i].idx] = special_cats_map[i].name
 
@@ -395,7 +432,7 @@ sigma.classes.graph.addMethod('neighbors', function(nodeId) {
     label.htmlFor = cat_objects[c].name;
     // name certain categories
     if(special_cats[cat_objects[c].name]) cat_name = cat_objects[c].name + " ("+ special_cats[cat_objects[c].name] +")";
-    else cat_name = cat_objects[c].name;
+    else cat_name = cat_descriptions[cat_objects[c].name];
     label.appendChild(document.createTextNode(cat_name));
 
     div.appendChild(checkbox);

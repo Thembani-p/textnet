@@ -165,30 +165,29 @@
 <button id="control-pane-btn" class="btn btn-default">Filter panel</button>
 
 <div id="info">
-<div id="instructions" class="">
-  <h3>Node info</h3>
-  <h4>Instructions</h4>
-  <p>Click on a node to select it.</p>
-  <p>Use your mouse wheel to zoom in and out. Click and drag on the main screen area to move around the network.</p>
-  <p>A "Continue >" button will appear after you click on a specific node. Click that button to see more information about your selected node.</p>
-  <button id="instructions-continue-btn" class="btn btn-default hide">Continue ></button>
-  <!-- <button id="info-box-btn" class="btn btn-default">Node Info</button> -->
-</div>
+  <div id="instructions" class="">
+    <h3>Node info</h3>
+    <h4>Instructions</h4>
+    <p>Click on a node to select it.</p>
+    <p>Use your mouse wheel to zoom in and out. Click and drag on the main screen area to move around the network.</p>
+    <p>A "Continue >" button will appear after you click on a specific node. Click that button to see more information about your selected node.</p>
+    <button id="instructions-continue-btn" class="btn btn-default hide">Continue ></button>
+    <!-- <button id="info-box-btn" class="btn btn-default">Node Info</button> -->
+  </div>
 
-<div id="info-box" class="hide">
-
-<h3>Node info</h3>
-<button id="instructions-back-btn" class="btn btn-default">< Instructions</button>
-<span class="line"></span>
-<h4>Selected node:</h4>
-<p id="node-name">Selected Node</p>
-<br/>
-<h4>Node community:</h4>
-<div id="node-group">Part of Speech</div>
-<br/>
-<h4>Connected nodes:</h4>
-<span id="node-neighbours">Neighbours</span>
-</div>
+  <div id="info-box" class="hide">
+    <h3>Node info</h3>
+    <button id="instructions-back-btn" class="btn btn-default">< Instructions</button>
+    <span class="line"></span>
+    <h4>Selected node:</h4>
+    <p id="node-name">Selected Node</p>
+    <br/>
+    <h4>Node community:</h4>
+    <div id="node-group">Part of Speech</div>
+    <br/>
+    <h4>Connected nodes:</h4>
+    <span id="node-neighbours">Neighbours</span>
+  </div>
 </div>
 
 <div id="control-pane">
@@ -255,11 +254,11 @@
 <script>
   SigmaResource = '{{ '/files/'~graph_name }}_viz.json';
 </script>
-<script type='text/javascript'>
+<!-- <script type='text/javascript'>
   document.getElementById("export-btn").addEventListener('click',function() {
-    download('{{ 'files/'~graph_name }}',"graph.json")
+    download('{{ 'files/'~graph_name }}',"{{graph_name}}.json")
   });
-</script>
+</script> -->
 
 <!-- <link href='http://fonts.googleapis.com/css?family=Lato:300,700' rel='stylesheet' type='text/css'> -->
 

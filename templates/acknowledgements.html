@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="static/lib/js/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="static/css/style.css">
+<title>Acknowledgements | Thanks Ian :)</title>
+</head>
+
+<body>
+<div class="container-fluid">
+
+<div class="jumbotron">
+  <h1>Welcome to TextNet</h1>
+  <p> TextNet is a free online tool for creating text networks.
+    You can insert plain text and TextNet will turn it into a network.
+    You have to name your project so you can easily download it later. </p>
+    <a href="{{ url_for('index') }}" class="btn btn-primary">home</a>
+    <a href="{{ url_for('tutorial') }}" class="btn btn-primary">tutorial</a>
+    <a href="{{ url_for('acknowledgements') }}" class="btn btn-primary">acknowledgements</a>
+
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="alert alert-danger">
+      <a class="close" title="Close" href="#" data-dismiss="alert">&times;</a>
+      Warning: This project no longer supports PDF Parser nor does it produce GEXF files.
+    </div>
+  </div>
+</div>
+
+<div class="row ack">
+  <div class="col-sm-6">
+  <h2>Dissertation Supervisors</h2>
+  <p>This project was created during the completion of a Masters Degree at the University of Cape Town. My
+  dissertation supervisors are listed below</p>
+  <ul>
+    <li> Dr. Ian Durbach</li>
+    <li> Dr. Melvin Varughese</li>
+    <li> Dr. Bruce Basset</li>
+  </ul>
+</div>
+  <div class="col-sm-6">
+  <h2>Libraries and Software Used</h2>
+  <p>This project made use of various open source software packages and libraries, they are listed below.
+    The limitations of these software packages apply to TextNet and it is best to track these limitations
+  through the software packages directly.</p>
+    <ul>
+      <li> <a href="http://sigmajs.org">Sigmajs </a> </li>
+      <li> <a href="http://pdfparser.org">PDF Parser</a></li>
+      <li> <a href="http://nlp.stanford.edu/software/tagger.shtml">Stanford Part-of-Speech Tagger</a></li>
+      <li> <a href="http://charleshays.com/php-class-wrapper-for-stanford-part-of-speech-tagger/">PHP Wrapper for the Standford Tagger by Charles Hays</a></li>
+    </ul>
+  </div>
+</div>
+
+<div class="row ack">
+  <div class="col-sm-12">
+    <h3>Limitations and Errors</h3>
+    <ul>
+      <li> The PDF Parser can fail. This is indicated by some error that usually stops TextNet. This can happen for various reasons. The most important is that the PDF's features are not supported. An example is encryption. If the PDF file is large or might have special features it is preferable to use an online PDF parser or copy the text and use the text field on the home page.  </li>
+      <li> The GEXF file can be ill formed. After the plain text or PDF have been converted into a grph the graph is converted to a GEXF file. If this file is ill formed the visualisation willl not appear. This happens for various reasons the most common is unsupported characters. This issue can be resolved by finding the unsupported character, which includes finding the file.
+        <ul>
+          <li>To find the file change the url in the browser from <strong>visualisation.php?resource=YOUR_PROJECT_NAME</strong> to <strong>files/YOUR_PROJECT_NAME/graph.gexf</strong>.
+          If there is a problem with the GEXF file the statment <strong>This page contains the following errors:</strong> will appear. Beneath this statement an error and line number will be provided. You can view the file by right clicking and selecting <strong>view source</strong> on most browsers. It is typically faster however to right click and select <strong> save as</strong> which will intitate a file download.</li>
+          <li>
+            Once the file is found the unsupported characters can be removed. These characters typically include
+            <ul>
+              <li>The ampersand <strong>&</strong></li>
+              <li>Any accented character like <strong>  à, è, ì, ò, ù </strong>. There character can eb found <a href="https://en.wikipedia.org/wiki/Diacritic"> here </a></li>
+            </ul>
+            Once the character are removed the file can be opened in <a href="https://gephi.org/users/download/">Gephi</a> for visualisation. Gephi is likely to produce some errors but if ignored the process should proceed.
+          </li>
+        </ul>
+      </li>
+      <li> If there are any errors not address here please <a  href="mailto:thembani.p21@googlemail.com?Subject=TextNet%20Errors" target="_top"> email </a> me and I will try to address them as soon as possible.
+    </ul>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

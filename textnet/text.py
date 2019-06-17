@@ -23,8 +23,8 @@ from nltk.tree import Tree
 # http://www.nltk.org/_modules/nltk/tag/stanford.html#CoreNLPPOSTagger
 from nltk.tag.stanford import StanfordPOSTagger
 
-path_to_model = "input/stanford/stanford-postagger-full-2017-06-09/models/english-bidirectional-distsim.tagger"
-path_to_jar   = "input/stanford/stanford-postagger-full-2017-06-09/stanford-postagger.jar"
+path_to_model = "input/stanford/stanford-postagger-full-2018-10-16/models/english-bidirectional-distsim.tagger"
+path_to_jar   = "input/stanford/stanford-postagger-full-2018-10-16/stanford-postagger.jar"
 
 standford_tagger = StanfordPOSTagger(path_to_model, path_to_jar)
 standford_tagger.java_options = '-mx4096m'          ### Setting higher memory limit for long sentences
@@ -140,14 +140,19 @@ def chunks_by_sentence(sentences,tagger='stanford'):
             all_chunks += get_continuous_chunks(chunked)
         return all_chunks
 
-def tag_sentences(text,tagger='stanford'):
+def tag_sentences(text,tagger='stanford', filter=None):
     # https://textminingonline.com/dive-into-nltk-part-ii-sentence-tokenize-and-word-tokenize
     # taggs tokenised list
+    # print(text)
     sentences = sent_tokenize(text)
+    # print(sentences)
     # stanfrod POS takes quite a while to run
     #  thus the stanford option should only be availble for looged in users
     tagged = chunks_by_sentence(sentences,tagger)
+    # print(tagged)
 
+    if filter is not None:
+        tagged = [elem for elem in tagged if elem[1].lower() in [filter, filter+'s']]
 
     tokens = [elem[0] for elem in tagged]
     # if string is punctuation set tag to PUNCT

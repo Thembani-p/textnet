@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link href="{{url_for('static', filename='lib/js/bootstrap/css/bootstrap.min.css')}}" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
-<title>Home | Upload Document</title>
+<title>Options | Upload Document</title>
 </head>
 
 <body>
@@ -16,8 +16,8 @@
     You can either insert plain text or upload a PDF document and TextNet will turn it into a network.
     You have to name your project so you can easily download it later. </p>
     <a href="{{ url_for('index') }}" class="btn btn-primary">home</a>
-    <a href="plos_journal_tutorial.php" class="btn btn-primary">tutorial</a>
-    <a href="acknowledgements.php" class="btn btn-primary">acknowledgements</a>
+    <a href="{{ url_for('tutorial') }}" class="btn btn-primary">tutorial</a>
+    <a href="{{ url_for('acknowledgements') }}" class="btn btn-primary">acknowledgements</a>
 
 </div>
 
@@ -38,9 +38,20 @@
     <a id="viz-btn" class="btn btn-default" href="{{url_for('visualisation',graph_name=project_name)}}">visualisation</a>
     <a id="merge-btn" class="btn btn-default" href="{{url_for('merge_view',graph_name=project_name)}}">merge</a>
     |
-    <a id="export-btn" class="btn btn-default" href="{{url_for('get_files',filename=project_name~'.json')}}">export json</a>
-    <a id="export-btn" class="btn btn-default" href="{{url_for('get_files',filename=project_name~'.graphml')}}">export grapml</a>
-    <script src="/static/lib/js/download2.js"></script>
+    <!-- <a id="export-btn-json" class="btn btn-default" href="{{url_for('get_files',filename=project_name~'.json')}}">export json</a> -->
+    <!-- <a id="export-btn-graphml" class="btn btn-default" href="{{url_for('get_files',filename=project_name~'.graphml')}}">export grapml</a> -->
+
+    <a id="export-btn-json" class="btn btn-default" href=#>export json</a>
+    <a id="export-btn-graphml" class="btn btn-default" href=#>export grapml</a>
+    <script src="{{url_for('static', filename='lib/js/download2.js')}}"></script>
+    <script type='text/javascript'>
+      document.getElementById("export-btn-json").addEventListener('click',function() {
+        download('{{ 'files/'~project_name~'.json'}}',"{{project_name}}.json")
+      });
+      document.getElementById("export-btn-graphml").addEventListener('click',function() {
+        download('{{ 'files/'~project_name~'.graphml'}}',"{{project_name}}.graphml")
+      });
+    </script>
 
   </div>
 </div>

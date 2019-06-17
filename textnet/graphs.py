@@ -116,10 +116,10 @@ def gen_graph(tokens,tagged,window):
 
     return graph
 
-def new_graph(text,window,name):
+def new_graph(text,window,name,filter):
 
     # tag
-    tokens, tagged = tag_sentences(text)
+    tokens, tagged = tag_sentences(text, filter=filter)
 
     # create graph
     graph = gen_graph(tokens,tagged,window)
