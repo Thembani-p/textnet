@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="{{url_for('static', filename='lib/js/bootstrap/css/bootstrap.min.css')}}" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"
+  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+  crossorigin="anonymous"></script>
+  <script src="{{url_for('static', filename='lib/js/bootstrap.min.js')}}" type='text/javascript'></script>
+{% block css %}{% endblock %}
+<title>Home | Upload Document</title>
+</head>
+
+<body>
+<div class="container-fluid">
+
+<div class="jumbotron">
+  <h1>Welcome to TextNet</h1>
+  <p> TextNet is a free online tool for creating text networks.
+    You can insert plain text and TextNet will turn it into a network.
+    You have to name your project so you can easily download it later. </p>
+    <a href="{{ url_for('routes.index') }}" class="btn btn-primary">home</a>
+    <a href="{{ url_for('routes.projects') }}" class="btn btn-primary">projects</a>
+    <a href="{{ url_for('routes.tutorial') }}" class="btn btn-primary">tutorial</a>
+    <a href="{{ url_for('routes.acknowledgements') }}" class="btn btn-primary">acknowledgements</a>
+
+</div>
+
+<!-- messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="row">
+  <div class="col-md-12">
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">
+      <a class="close" title="Close" href="#" data-dismiss="alert">&times;</a>
+     {{message}}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endwith %}
+
+<!-- child template -->
+{% block content %}{% endblock %}
+
+</div>
+{% block js %}{% endblock %}
+</body>
+</html>

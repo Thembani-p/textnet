@@ -87,11 +87,11 @@ for window in [25, 50, 75]:
 ## Updates
 
 - data model for file system*
-- adjust data model for cloud storage
-- wtforms for form handling
-- module project structure with manage.py
+- adjust data model for cloud storage (not sure if this can work universally, for reading and writing)
+- wtforms for form handling* (only for the index page)
+- module project structure with manage.py* (still app.py)
 - unit tests for textnet module
-- projects with pagination
+- projects with pagination*
 
 ## App engine deployment
 

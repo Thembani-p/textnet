@@ -1,5 +1,5 @@
 
-
+# TODO: save original file and add edit option
 # ------------------------------------------------------------------------------
 # laod packages
 # ------------------------------------------------------------------------------
@@ -55,7 +55,7 @@ def gen_graph(tokens,tagged,window):
             edges = add_edges(tokenised_text,i,lower_limit,edges)
         if(i != upper_limit):
             edges = add_edges(tokenised_text,i,upper_limit,edges)
-    print('edges',edges)
+    # print('edges',edges)
     flat_nodes = []
     edge_list = []
     id = 1
@@ -119,6 +119,11 @@ def gen_graph(tokens,tagged,window):
 
 def new_graph(text,window,name,filter):
 
+    # save original
+    graph_name = name.strip()
+    project = Project(graph_name)
+    project.write(text, project.original)
+
     # tag
     tokens, tagged = tag_sentences(text, filter=filter)
 
@@ -126,10 +131,10 @@ def new_graph(text,window,name,filter):
     graph = gen_graph(tokens,tagged,window)
 
     # conditions should be applied to the names
-    graph_name = name.strip()
-    # write_json_file(graph, graph_name)
 
-    project = Project(graph_name)
+    # write_text_file(graph, graph_name)
+
+
     project.write(graph, project.full)
 
     # save full igraph
@@ -162,7 +167,7 @@ def viz_graph(graph,limit=2500):
         both_idx = keep_source_edges&keep_target_edges
 
         print('Viz Remove Edges')
-        print(edges_df.loc[~both_idx])
+        # print(edges_df.loc[~both_idx])
 
         new_edges_df = edges_df.loc[both_idx]
         new_edges_df = new_edges_df.reset_index()
@@ -185,7 +190,7 @@ def graph_options(graph_name):
     graph_stats = {}
 
     # get graph
-    # graph = read_json_file(graph_name)
+    # graph = read_text_file(graph_name)
     graph = project.read(project.full)
 
     node_count = len(graph['nodes'])
@@ -201,11 +206,11 @@ def graph_options(graph_name):
     # get or create limited graph
     # viz_name = ljoin([graph_name,'viz'],'_')
     if file_exists(project.viz.uri):
-        # limited_graph = read_json_file(viz_name)
+        # limited_graph = read_text_file(viz_name)
         limited_graph = project.read(project.viz)
     else:
         limited_graph = viz_graph(graph,1000)
-        # write_json_file(limited_graph,viz_name)
+        # write_text_file(limited_graph,viz_name)
         project.write(limited_graph, project.viz)
 
     graph_stats['Limited Graph'] = {}
@@ -218,7 +223,7 @@ def graph_options(graph_name):
     # get merged graph
     # merged_name = ljoin([graph_name,'merged'],'_')
     if file_exists(project.merged.uri):
-        # merged_graph = read_json_file(merged_name)
+        # merged_graph = read_text_file(merged_name)
         merged_graph = project.read(project.merged)
         graph_stats['Merged Graph'] = {}
         graph_stats['Merged Graph']['Node Count'] = len(merged_graph['nodes'])
@@ -309,14 +314,14 @@ def merge_candidates(graph_name):
 
     if not file_exists(project.merge.uri):
         print('running new merge table')
-        # graph_dict = read_json_file(graph_name)
+        # graph_dict = read_text_file(graph_name)
         graph_dict = project.read(project.full)
 
         graphi = to_igraph(graph_dict)
 
         merge_table = create_merge_table(graphi,graph_dict)
 
-        # write_json_file(merge_table, merge_filename)
+        # write_text_file(merge_table, merge_filename)
         project.write(merge_table, project.merge)
 
     else:
@@ -338,22 +343,22 @@ def merge_nodes(graph_name):
     project = Project(graph_name)
 
     # accept_table = pull_merge_form_data(graph_name)
-    if file_exists(project.merge_pickle.uri):
-        accept_table = project.read(project.merge_pickle)
+    if file_exists(project.merge_form.uri):
+        accept_table = project.read(project.merge_form)
     else:
         accept_table = False
-    # graph = read_json_file(graph_name)
+    # graph = read_text_file(graph_name)
     graph = project.read(project.full)
 
     for node_label in accept_table:
-        print(node_label, accept_table[node_label])
+        # print(node_label, accept_table[node_label])
         if accept_table[node_label] != 'None':
 
             # delete node from graph
             # super inefficient but effective
             for idx,node in enumerate(graph['nodes']):
                 if node['label'] == node_label:
-                    print('Delete', node)
+                    # print('Delete', node)
                     del graph['nodes'][idx]
 
             # print(len(graph['nodes']),len(node_names),len(node_idx))
@@ -369,7 +374,7 @@ def merge_nodes(graph_name):
                     graph['edges'][idx]['source'] = accept_table[node_label]
 
 
-    # write_json_file(graph, ljoin([graph_name,'merged'],'_
+    # write_text_file(graph, ljoin([graph_name,'merged'],'_
     project.write(graph, project.merged)
     graphi = to_igraph(graph)
     # save_igraph(graphi,graph_name)
@@ -378,5 +383,5 @@ def merge_nodes(graph_name):
     # get or create limited graph
     # viz_name = ljoin([graph_name,'viz'],'_')
     limited_graph = viz_graph(graph,1000)
-    # write_json_file(limited_graph,viz_name)
+    # write_text_file(limited_graph,viz_name)
     project.write(limited_graph, project.viz)

@@ -1,0 +1,21 @@
+<div class="row">
+  <div class="col-sm-10 col-lg-10">
+
+
+    <a id="viz-btn" class="btn btn-default" href="{{url_for('routes.visualisation',graph_name=project_name)}}">visualisation</a>
+    <a id="merge-btn" class="btn btn-default" href="{{url_for('routes.graph_options_view',graph_name=project_name)}}">options</a>
+    |
+    <a id="export-btn-json" class="btn btn-default" href=#>export json</a>
+    <a id="export-btn-graphml" class="btn btn-default" href=#>export grapml</a>
+    <script src="{{url_for('static', filename='lib/js/download2.js')}}"></script>
+    <script type='text/javascript'>
+      document.getElementById("export-btn-json").addEventListener('click',function() {
+        download("{{url_for('routes.get_files', graph_name=project_name,filename=project_name~'.json')}}","{{project_name}}.json")
+      });
+      document.getElementById("export-btn-graphml").addEventListener('click',function() {
+        download("{{url_for('routes.get_files', graph_name=project_name,filename=project_name~".graphml")}}","{{project_name}}.graphml")
+      });
+    </script>
+
+  </div>
+</div>

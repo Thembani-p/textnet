@@ -1,0 +1,265 @@
+<style type="text/css">
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    overflow: hidden;
+  }
+
+  h5 {
+    font-weight: bold;
+  }
+
+  button {
+    margin-bottom: 15%;
+  }
+
+  #container {
+    padding: 2px;
+    min-width: 100%;
+    min-height: 100%;
+    height: 550px;
+    width: 550px;
+    margin: auto;
+  }
+
+  #categories {
+    display: block;
+    height: 405px;
+    padding: 0 5px 0 5px;
+    overflow-y: scroll;
+    background-color:rgba(255, 255, 255, 0.5);
+    font-size: 11px;
+    font-weight: normal;
+  }
+
+  #info-box {
+    float: right;
+    width: 250px;
+    min-height: 100%;
+    padding: 40px 25px 0 25px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-right: 1px solid #ccc;
+    background-color:rgba(255, 255, 255, 0.5);
+    /*display: none; */
+  }
+
+  #instructions {
+    float: right;
+    width: 250px;
+    min-height: 100%;
+    padding: 40px 25px 0 25px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-right: 1px solid #ccc;
+    background-color:rgba(255, 255, 255, 0.5);
+    /*display: none; */
+  }
+
+  #instructions-btn {
+    position: absolute;
+    left: 35%;
+    top: 5%;
+  }
+
+  #options-btn {
+    position: absolute;
+    left: 50%;
+    top: 5%;
+  }
+
+
+  #control-pane-btn {
+    position: absolute;
+    left: 65%;
+    top: 5%;
+  }
+
+  .hide {
+    display: none;
+  }
+
+  .small {
+    height: 75px;
+    overflow-y: hidden;
+    margin-top: -40px;
+  }
+
+
+  #node-neighbours {
+    width: 150px;
+    height: 475px;
+    float: left;
+    overflow-y: hidden;
+    background-color:rgba(255, 255, 255, 0.5);
+    text-overflow: ellipsis;
+    overflow-x: hidden;
+  }
+
+  #control-pane {
+    float: right;
+    width: 300px;
+    min-height: 100%;
+    padding: 25px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    border-left: 1px solid #ccc;
+    background-color:rgba(255, 255, 255, 0.5);
+  }
+
+  #control-pane > div {
+    margin: 10px;
+    overflow-x: auto;
+  }
+
+  .line {
+    clear: both;
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 12px 0 0 0;
+    border-bottom: 1px solid #ccc;
+    background: transparent;
+    margin-bottom: 25px;
+  }
+
+  .checkbox {
+    padding-left: 20px;
+  }
+
+  @media (max-width: 768px) {
+    #info-box {
+        display: none;
+    }
+
+    #instructions{
+      display: none;
+    }
+
+    #instructions-btn {
+      display: none;
+    }
+  }
+
+  @media (max-width: 1024px)
+  {
+    #control-pane  {
+        display: none;
+    }
+
+    #control-pane-btn {
+      display: none;
+    }
+  }
+</style>
+
+<div id="container">
+
+</div>
+<button id="instructions-btn" class="btn btn-default">Node panel</button>
+<a id="options-btn" class="btn btn-default" href="{{url_for('routes.graph_options_view',graph_name=graph_name)}}">Options</a>
+<button id="control-pane-btn" class="btn btn-default">Filter panel</button>
+
+<div id="info">
+  <div id="instructions" class="">
+    <h3>Node info</h3>
+    <h4>Instructions</h4>
+    <p>Click on a node to select it.</p>
+    <p>Use your mouse wheel to zoom in and out. Click and drag on the main screen area to move around the network.</p>
+    <p>A "Continue >" button will appear after you click on a specific node. Click that button to see more information about your selected node.</p>
+    <button id="instructions-continue-btn" class="btn btn-default hide">Continue ></button>
+    <!-- <button id="info-box-btn" class="btn btn-default">Node Info</button> -->
+  </div>
+
+  <div id="info-box" class="hide">
+    <h3>Node info</h3>
+    <button id="instructions-back-btn" class="btn btn-default">< Instructions</button>
+    <span class="line"></span>
+    <h4>Selected node:</h4>
+    <p id="node-name">Selected Node</p>
+    <br/>
+    <h4>Node community:</h4>
+    <div id="node-group">Part of Speech</div>
+    <br/>
+    <h4>Connected nodes:</h4>
+    <span id="node-neighbours">Neighbours</span>
+  </div>
+</div>
+
+<div id="control-pane">
+  <div id="isolate" class="">
+    <h3 class="underline">Select a Filter</h3>
+    <h4>Instructions</h4>
+    <p>Click the "Continue >" button below to see the list of communities identified in the data. The largest communities (i.e. those with the most nodes) are listed first.</p>
+    <p>To isolate a specific community, click the "Hide all" button and untick the community that you are interested in. Click the "Show all" button to show the full network again</p>
+    <button id="control-pane-continue-btn" class="btn btn-default">Continue ></button>
+  </div>
+    <!-- <select id="node-category">
+      <option value="" selected>All categories</option>
+    </select> -->
+  <div id="community" class="hide">
+    <h3 class="underline">Part of Speech Filter</h3>
+    <button id="control-pane-back-btn" class="btn btn-default">< Instructions</button>
+    <button id="control-pane-degree-btn" class="btn btn-default">Degree Filter ></button>
+  <span class="line"></span>
+    <h4 >Select Part of Speech</h4>
+    <button id="select-all-btn" class="btn btn-default">Hide all</button>
+
+    <button id="reset-btn" class="btn btn-default">Show all</button>
+    <span id="categories">
+        <!-- <input name="All" type="checkbox" class="node-category" value="All"><label for="All">All</label> -->
+    </span>
+
+    <span class="line"></span>
+    <button id="canvas-btn" name="reset canvas" class="btn btn-default">Reset canvas</button>
+    <button id="export-btn" class="btn btn-default">Export</button>
+    <div id="dump" class="hidden"></div>
+    </div>
+
+    <div id="degree-filter" class="hide">
+      <h3 class="underline">Degree Filter</h3>
+      <button id="control-pane-pos-back-btn" class="btn btn-default">< Instructions</button>
+      <button id="control-pane-pos-btn" class="btn btn-default">Part of Speech Filter ></button>
+      <span class="line"></span>
+      <div style="overflow: hidden">
+  		  <h3>min degree <span id="min-degree-val">0</span></h3>
+  		  0 <input id="min-degree" type="range" min="0" max="0" value="0"> <span id="max-degree-value">0</span><br>
+  		</div>
+      <span class="line"></span>
+      <div style="overflow: hidden">
+  		  <h3>max degree <span id="max-degree-val">0</span></h3>
+  		  0 <input id="max-degree" type="range" min="0" max="0" value="0"> <span id="min-degree-value">0</span><br>
+  		</div>
+      <span class="line"></span>
+    </div>
+  </div>
+</div>
+<script src="/static/lib/js/sigma/sigma.min.js"></script>
+<script src="/static/lib/js/sigma/plugins/sigma.parsers.json.min.js"></script>
+
+<link href="/static/lib/js/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<link href="/static/css/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<link href="/static/css/checkbox.css" rel="stylesheet">
+
+<script src="/static/lib/js/linkuriousjs/plugins/sigma.plugins.animate/sigma.plugins.animate.js"></script>
+
+<script src="/static/lib/js/linkuriousjs/plugins/sigma.layout.forceAtlas2/worker.js"></script>
+<script src="/static/lib/js/linkuriousjs/plugins/sigma.layout.forceAtlas2/supervisor.js"></script>
+<script src="/static/lib/js/linkuriousjs/plugins/sigma.plugins.filter/sigma.plugins.filter.js"></script>
+<script src="/static/lib/js/download2.js"></script>
+<script>
+  SigmaResource = '/files/{{graph_name}}/{{graph_name}}_viz.json';
+</script>
+<!-- <script type='text/javascript'>
+  document.getElementById("export-btn").addEventListener('click',function() {
+    download('{{ 'files/'~graph_name }}',"{{graph_name}}.json")
+  });
+</script> -->
+
+<!-- <link href='http://fonts.googleapis.com/css?family=Lato:300,700' rel='stylesheet' type='text/css'> -->
+
+<script src="/static/js/textviz.js" ></script>

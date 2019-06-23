@@ -1,0 +1,108 @@
+{% extends "_base.html" %}
+
+{% block content %}
+
+<form enctype="multipart/form-data" method="post" action="/">
+
+  {{ form.csrf_token }}
+
+<div class="row">
+  <div class="col-sm-10 col-lg-10">
+
+    <p>
+    {{ form.name(placeholder="Name the Project", class_="form-control") }}
+      <span class="error">
+        {% if form.name.errors %}
+          {% for error in form.name.errors %}
+            {{ error }}
+          {% endfor %}
+        {% endif %}
+      </span>
+    </p>
+
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-sm-5 col-lg-5">
+    <div class="form-group">
+
+      <label> Graph Window </label>
+
+      <p>
+      {{ form.window(class_="form-control") }}
+        <span class="error">
+          {% if form.window.errors %}
+            {% for error in form.window.errors %}
+              {{ error }}
+            {% endfor %}
+          {% endif %}
+        </span>
+      </p>
+    </div>
+
+  </div>
+  <div class="col-sm-5 col-lg-5">
+    <div class="form-group">
+
+      <label> Parts of Speech </label>
+
+      <p>
+      {{ form.filter(class_="form-control") }}
+        <span class="error">
+          {% if form.filter.errors %}
+            {% for error in form.filter.errors %}
+              {{ error }}
+            {% endfor %}
+          {% endif %}
+        </span>
+      </p>
+
+      <!-- <label> Parts of Speech </label>
+
+      <select name="filter" class="form-control">
+        <option value="all"> all  </option>
+        <option value="nnp"> proper nouns </option>
+      </select> -->
+    </div>
+
+  </div>
+</div>
+
+<!-- <div class="row">
+  <div class="col-sm-10 col-lg-10">
+
+    <input class="upload btn" type="file" name="pdf">
+
+  </div>
+</div> -->
+<!-- remove pdf upload -->
+
+<div class="row">
+  <div class="col-sm-10 col-lg-10">
+
+    <p>
+    {{ form.textline(class_="form-control") }}
+      <span class="error">
+        {% if form.textline.errors %}
+          {% for error in form.textline.errors %}
+            {{ error }}
+          {% endfor %}
+        {% endif %}
+      </span>
+    </p>
+
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-sm-10 col-lg-10">
+
+    <input class="btn btn-default" type="submit" value="submit">
+
+  </div>
+</div>
+
+</form>
+
+{% endblock %}

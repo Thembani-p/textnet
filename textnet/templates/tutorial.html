@@ -1,0 +1,83 @@
+{% extends "_base.html" %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="alert alert-danger">
+      <a class="close" title="Close" href="#" data-dismiss="alert">&times;</a>
+      Warning: This project no longer supports PDF Parser nor does it produce GEXF files.
+    </div>
+  </div>
+</div>
+
+<div class="row ack">
+  <div class="col-sm-12">
+    <h2>Convert Document to Plain Text</h2>
+    <p>TextNet has a PDF upload option. In many cases
+      this is a suitable choice but often it can fail.
+      This is typically the result of the PDF parser
+      creating characters that create inconsistancies in
+      GEXF file which is used to capture the graph structure.
+     </p>
+     <p>To avoid these issues its preferrable to upload plain
+       text to the textarea field on the home page.
+     </p>
+     <p>The title of the article used in this tutorial is
+       <a href="http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0172002">Humpback whale “super-groups” – A novel low-latitude feeding behaviour of Southern Hemisphere humpback whales (Megaptera novaeangliae) in the Benguela Upwelling System</a>. It can be downloaded in as a PDF or viewed online in HMTML. For our purposes and for generality we will start by downloading the PDF. WE will then copy the text into a text editor and paste this into TextNet to create a visualiation. The proper noun garph is usually much smaller than the full graph as such its usually a good idea to start wtih that one. Its a good idea to name the project lets say the name is <strong>name of project</strong>. Its important not to include underscores (_) when creating a project name.
+     </p>
+     <p>The graph will not render.
+   </p>
+  </div>
+  <div class="col-sm-12">
+    <h2>Troubleshooting</h2>
+    <p>The first task is to find the cause of the error. This requires navigating to the GEXF file. The GEXF file can be found at the extenion /files/<strong>name_of_project</strong>/graph.gexf. Take note of the URL which includes underscores and the actual name of the project which does not. This is done automatically. </p>
+    <p>The error caused the will read something along the lines of: <em>Error on line # at column ##: Entity ‘###’ not defined</em>. The entity in question will typically be ‘&amp;Atilde’
+      </p>
+    <p> This tells us where the error is but not which character in the original text caused it. This can be answered by opening up the file. There are two ways to do this:
+    </p>
+    <ul>
+      <li> right click on the webpage showing the GEXF file and select <strong>view source</strong> </li>
+      <li> right click on the webpage showing the GEXF file and select <strong>save target as...</strong></li>
+      <ul>
+        <li>subsequently you can open the GEXF file in a text editor. If the original text was large (several pages) then this option will be faster.</li>
+      </ul>
+    </ul>
+    <p>A search of the undefined entity (‘###’) will be linked to specific nodes. When those nodes are searched within the document typically the infringing characters can be found close to them. Some examples are included below:
+    </p>
+    <ul>
+      <li> '... node id="Reference numbers&amp;Atilde;"...' </li>
+      <li> '... node id="23&amp;Atilde;"...' </li>
+    </ul>
+    <p>A search for Reference numbers will return <strong>"Reference numbersÐEC020"</strong> with <strong>"Ð"</strong> the infringing character. This should be changed to "D". The other infrinding characters are
+    </p>
+    <ul>
+      <li>Ë to E</li>
+      <li>± to +-</li>
+    </ul>
+    <p> After making these changes the proper noun graph should work. At this point it might be a good idea to try the full graph. It will fail as there is a final character unaccounted for <strong>"È"</strong> which can be converted to "E". This character was found using the same process as described above. The process can be tedious however the alternative is to perform a search of various accented characters which might be easier to automate but it might not address all the infringing characters. I have created 6 graphs from this paper 3 proper noun graphs and 3 full graphs, links are avilabel below
+    </p>
+    <ul>
+      <li><a href="{{url_for('routes.graph_options_view',graph_name='plos25f')}}">Proper Noun Graph Window 25</a></li>
+      <li><a href="{{url_for('routes.graph_options_view',graph_name='plos50f')}}">Proper Noun Graph Window 50</a></li>
+      <li><a href="{{url_for('routes.graph_options_view',graph_name='plos75f')}}">Proper Noun Graph Window 75</a></li>
+      <li><a href="{{url_for('routes.graph_options_view',graph_name='plos25')}}">Full Graph Window 25</a></li>
+      <li><a href="{{url_for('routes.graph_options_view',graph_name='plos50')}}">Full Graph Window 50</a></li>
+      <li><a href="{{url_for('routes.graph_options_view',graph_name='plos75')}}">Full Graph Window 75</a></li>
+    </ul>
+  </div>
+</div>
+
+<div class="row ack">
+  <div class="col-sm-12">
+    <h3>Finishing Off</h3>
+    <p> At this point the proper noun graph is complete. It can be exported in GEXF file format and finished off in <a href="https://gephi.org/users/download/">Gephi</a>.
+    </p>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+  <script src="{{url_for('static', filename='lib/js/bootstrap.min.js')}}" type='text/javascript'></script>
+{% endblock %}
