@@ -71,16 +71,26 @@ nltk.download('punkt')
 ## Tutorial
 
 ```python
-from textnet.graphs import new_graph
+from textnet.graphs import new_graph, graph_options
+from textnet.models import Project
 
 with open('plos.txt', 'r' ,encoding='latin-1') as datafile:
   textline = datafile.read()
 
 for window in [25, 50, 75]:
-  for filter in [None, 'nnp']:
-    filter_string = '' if filter == None else 'f'
-    project_name = ''.join(['plos', str(window), filter_string])
-    graph_name = new_graph(textline, window, project_name, filter)
+  for filter in ['all', 'nnp']:
+    # filter_string = 'f' if filter == 'all' else ''
+    filter_object = None if filter == 'all' else filter
+    project_name = '_'.join(['plos', str(window), filter])        
+    graph_name = new_graph(textline, window, project_name, filter_object)
+    meta = {
+            'name': graph_name,
+            'type': 'sample',
+            'window': window,
+            'filter': filter
+    }
+    project = Project(graph_name)
+    project.write(meta, project.meta)
     graph_options(graph_name)
 ```
 
@@ -92,17 +102,25 @@ for window in [25, 50, 75]:
 - module project structure with manage.py* (still app.py)
 - unit tests for textnet module
 - projects with pagination*
+- project meta
+  - type* (sample, public, private),
+  - creator (email, confirm_id), | confirm_id gets emailed to the creator
+  - specifications* (window, filter)
+- textnet one backup
 
 ## App engine deployment
 
 - cloud storage
   - folder structure
     - project
-      - merge.json
-      - merge.pickle
+      - meta.json
+      - merge.json      
+      - merged.json
+      - merge_form.json
       - viz.json
       - .graphml
       - .json
+      - .txt
 - data store
 
 ## Running locally

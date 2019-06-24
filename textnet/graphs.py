@@ -128,13 +128,9 @@ def new_graph(text,window,name,filter):
     tokens, tagged = tag_sentences(text, filter=filter)
 
     # create graph
-    graph = gen_graph(tokens,tagged,window)
+    graph = gen_graph(tokens, tagged, window)
 
     # conditions should be applied to the names
-
-    # write_text_file(graph, graph_name)
-
-
     project.write(graph, project.full)
 
     # save full igraph

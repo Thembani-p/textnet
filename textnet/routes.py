@@ -17,6 +17,8 @@ from textnet.forms import *
 
 routes_blueprint = Blueprint('routes', __name__,)
 
+PAGE_NUMBER = 10
+
 @routes_blueprint.route("/", methods=['POST','GET'])
 def index():
     # TODO:
@@ -42,28 +44,24 @@ def index():
         # spaces will be replaced by underscores
 
         # wtforms
-        # if (len(request.form['name'].strip()) > 1) and  (len(request.form['textline'].strip()) > 1):
+        if form.filter.data == 'all':
+            filter = None
+        else:
+            filter = form.filter.data
 
-        # try:
-        #     project = Project(request.form['name'].strip())
-        #     graph = project.read(project.full)
-        #
-        #     print('graph exists', len(graph))
-        #     print('\n')
-        #
-        #     # insert flash for project already existing
-        #     flash('Project already exists :(', 'danger')
-        #     return render_template("index.html", data = request.form)
-        #
-        # except:
-            if form.filter.data == 'all':
-                filter = None
-            else:
-                filter = form.filter.data
+        graph_name = new_graph(form.textline.data, form.window.data, form.name.data, filter)
 
-            graph_name = new_graph(form.textline.data,form.window.data, form.name.data, filter)
+        meta = {
+            'name': graph_name,
+            'type': 'public',
+            'window': form.window.data,
+            'filter': form.filter.data
+        }
 
-            return redirect(url_for('routes.graph_options_view',graph_name=graph_name))
+        project = Project(graph_name)
+        project.write(meta, project.meta)
+
+        return redirect(url_for('routes.graph_options_view',graph_name=graph_name))
     else:
         return render_template("index.html", form=form)
 
@@ -82,21 +80,31 @@ def graph_options_view(graph_name):
     # this page will provide an overview of the graph
     #   number of nodes and edges*
     #   count of different part of speech*
-    #   merge candidates and form to merge nodes
+    #   merge candidates and form to merge nodes*
     #   option to continue to view limited version of graph (say upto 2500 nodes)*
     #       without query capability this would require saving a filtered
-    #       visualisation version of the graph
+    #       visualisation version of the graph*
     #   option to download graph in graphml format*
     #   other options like community detection etc
+    #   project meta
+    #       project owner
+    #       window
+    #       filter
+    #       type
 
-    # try:
+    try:
         project = Project(graph_name)
-        graph = project.read(project.full)
+        meta = project.read(project.meta)
 
-        return render_template("options.html", graph_options=graph_options(graph_name), project_name=graph_name)
-    # except:
-    #     flash("Project {} doesn't exists maybe create one?".format(graph_name.strip()), 'danger')
-    #     return redirect(url_for('routes.index'))
+        return render_template(
+            "options.html",
+            meta=meta,
+            project_name=graph_name,
+            graph_options=graph_options(graph_name)
+        )
+    except:
+        flash("Something went wrong. Project {} might not exist, maybe create one?".format(graph_name.strip()), 'danger')
+        return redirect(url_for('routes.index'))
 
 @routes_blueprint.route("/merge/<string:graph_name>", methods=['POST','GET'])
 def merge_view(graph_name):
@@ -154,8 +162,9 @@ def get_files(graph_name, filename):
     # accept graph and visualise it
     return read_file(os.path.join(graph_name, filename))
 
-@routes_blueprint.route("/projects")
-def projects():
+@routes_blueprint.route("/projects", defaults={'type': None})
+@routes_blueprint.route("/projects/<string:type>")
+def projects(type):
     search = False
     q = request.args.get('q')
     if q:
@@ -163,19 +172,26 @@ def projects():
 
     page = request.args.get(get_page_parameter(), type=int, default=1)
 
-    projects = os.listdir('files')
+    projects_folders = os.listdir('files')
+
+    projects = [Project(i).read(Project(i).meta) for i in projects_folders]
+
+    types = [i['type'] for i in projects]
+
+    if type != None and type in types:
+        projects = [i for i in projects if i['type'] == type]
 
     pagination = Pagination(
         page=page,
         total=len(projects),
         search=search,
-        per_page_parameter=5,
+        per_page_parameter=PAGE_NUMBER,
         record_name='projects'
     )
     # print(pagination)
 
-    start = (page-1)*10
-    end = (page)*10
+    start = (page-1)*PAGE_NUMBER
+    end = (page)*PAGE_NUMBER
 
     return render_template("projects.html", projects=projects[start:end], pagination=pagination)
 

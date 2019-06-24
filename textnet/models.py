@@ -55,6 +55,7 @@ class Project:
         # self.existing = os.path.isdir(self.project_path)
 
         self.viz_name = ljoin([graph_name,'viz'],'_')
+        self.meta_name = ljoin([graph_name,'meta'],'_')
         self.form_name = ljoin([graph_name,'form'],'_')
         self.merge_name = ljoin([graph_name,'merge'],'_')
         self.merged_name = ljoin([graph_name,'merged'],'_')
@@ -72,6 +73,11 @@ class Project:
             uri = project_file(self.graph_name, ext='txt', prefix=self.project_path),
             gcs = project_file(self.graph_name, ext='txt', prefix=self.gcs_path),
             ext = 'txt')
+
+        self.meta = Object(
+            uri = project_file(self.meta_name, ext='json', prefix=self.project_path),
+            gcs = project_file(self.meta_name, ext='json', prefix=self.gcs_path),
+            ext = 'json')
 
         self.full = Object(
             uri = project_file(self.graph_name, ext='json', prefix=self.project_path),

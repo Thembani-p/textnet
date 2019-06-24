@@ -10,6 +10,9 @@
   </div>
 </div>
 
+{% include '_types.html' %}
+
+<br />
 
 <div class="row">
   <div class="col-sm-10 col-lg-10">
@@ -19,10 +22,10 @@
           <li class="list-group-item d-flex justify-content-between align-items-center">
 
 
-            <a href="{{url_for('routes.graph_options_view',graph_name=project)}}">{{project}}</a>
-            <!-- <span class="badge badge-primary badge-pill">
-
-            </span> -->
+            <a href="{{url_for('routes.graph_options_view',graph_name=project['name'])}}">{{project['name']}}</a>
+            <span class="badge badge-primary badge-pill">
+              {{project['type']}}
+            </span>
           </li>
       {% endfor %}
     </ul>
@@ -51,9 +54,9 @@
        if(document.readyState === 'complete'){
            /*code here*/
            var pagination = document.getElementsByClassName("pagination");
-           pagination[0].firstElementChild.classList.add("pagination");
-
-           console.log(pagination)
+           if(pagination.length > 0){
+             pagination[0].firstElementChild.classList.add("pagination");
+           }
        }
   }
 </script>
