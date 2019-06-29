@@ -14,6 +14,7 @@ tn_env
 # data files
 stanford
 files/
+backup/
 *.json
 *.graphml
 *.pickle

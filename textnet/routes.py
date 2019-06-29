@@ -49,7 +49,10 @@ def index():
         else:
             filter = form.filter.data
 
-        graph_name = new_graph(form.textline.data, form.window.data, form.name.data, filter)
+        # strip punctuation for safer urls
+        graph_name = form.name.data.translate(str.maketrans('', '', string.punctuation))
+
+        graph_name = new_graph(form.textline.data, form.window.data, graph_name, filter)
 
         meta = {
             'name': graph_name,
@@ -174,7 +177,17 @@ def projects(type):
 
     projects_folders = os.listdir('files')
 
+    # projects = []
+    # for i in projects_folders:
+    #     project = Project(i)
+    #     print(project.meta.uri)
+    #     if os.path.exists(project.meta.uri):
+    #         projects.append(project.read(project.meta))
+
+    # projects = [Project(i).read(Project(i).meta) for i in projects_folders if Project(i).exists(Project(i).meta.uri)]
+
     projects = [Project(i).read(Project(i).meta) for i in projects_folders]
+    # print(projects)
 
     types = [i['type'] for i in projects]
 

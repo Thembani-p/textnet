@@ -27,8 +27,8 @@ path_to_model = "input/stanford/stanford-postagger-full-2018-10-16/models/englis
 path_to_jar   = "input/stanford/stanford-postagger-full-2018-10-16/stanford-postagger.jar"
 
 standford_tagger = StanfordPOSTagger(path_to_model, path_to_jar)
-standford_tagger.java_options = '-mx4096m'          ### Setting higher memory limit for long sentences
-
+standford_tagger.java_options = '-mx16384m'          ### Setting higher memory limit for long sentences
+standford_tagger.java_options = '-mx16384m'
 # https://pythonprogramming.net/named-entity-recognition-stanford-ner-tagger/
 from nltk.tag import StanfordNERTagger
 
@@ -36,8 +36,8 @@ path_to_model = "input/stanford/stanford-ner-2014-08-27/classifiers/english.all.
 path_to_jar   = "input/stanford/stanford-ner-2014-08-27/stanford-ner.jar"
 
 standford_ner = StanfordNERTagger(path_to_model, path_to_jar)
-standford_ner.java_options = '-mx4096m'          ### Setting higher memory limit for long sentences
-
+standford_ner.java_options = '-mx16384m'          ### Setting higher memory limit for long sentences
+standford_ner.java_options = '-mx16384m'
 
 
 

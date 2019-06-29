@@ -94,6 +94,91 @@ for window in [25, 50, 75]:
     graph_options(graph_name)
 ```
 
+## Textnet original backup
+
+Backups of the original Textnet project files.
+
+```python
+import os
+import requests
+import lxml.html as html
+
+if not os.path.isdir('backup'):
+  os.makedirs('backup')
+
+string = requests.get("http://app.textnet.co.za/files")
+root  = html.fromstring(string.text)
+links = root.xpath('//tr/td/a')
+
+for link in links:
+  filename = "{}.text".format(link.text.replace("/",""))
+  url = "http://app.textnet.co.za/files/{}{}".format(link.text, filename)
+  print(url)
+  string = requests.get(url)
+  if len(string.text) >= 500:
+    with open(os.path.join('backup', filename), 'w') as datafile:
+      datafile.write(string.text)
+
+# len(os.listdir('backup')) # 232
+#
+# texts = []
+# for text in os.listdir('backup'):
+#   text_path = os.path.join('backup', text)
+#   with open(text_path, 'r') as datafile:
+#     texts.append(datafile.read())
+#
+# sizes = np.array([len(i) for i in texts])
+# sizes[sizes < 500]
+# effective = np.array(os.listdir('backup'))[sizes < 500]
+```
+
+A new take on the projects with window 25 and no part of speech filter. Some will fail thus the error handling measure. All projects are backedup to GCS.
+
+```python
+import os
+import urllib
+import shutil
+from google.cloud import storage
+from textnet.graphs import new_graph, graph_options
+from textnet.models import Project
+
+os.environ["GCS"] = 'True'
+
+window = 25
+filter = 'all'
+
+for filename in os.listdir('backup'):
+  try:
+    file_path = os.path.join('backup', filename)
+    with open(file_path, 'r', encoding='latin-1') as datafile:
+      textline = datafile.read()
+    project_name = filename.replace('.text','')
+    project_name = project_name.translate(str.maketrans('', '', string.punctuation))
+    print(project_name)
+    graph_name = new_graph(textline, window, project_name, None)
+    meta = {
+            'name': graph_name,
+            'type': 'public',
+            'source': 'textnet-one',
+            'window': window,
+            'filter': filter
+    }
+    project = Project(graph_name)
+    project.write(meta, project.meta)
+    graph_options(graph_name)
+  except:
+    print('failed :( \n')
+    continue
+
+failed = [i for i in os.listdir('files') if not Project(i).exists(Project(i).meta.uri)]
+
+# remove failed projects
+for fail in failed:
+  project = Project(fail)
+  print(project.project_path)
+  shutil.rmtree(project.project_path)
+```
+
 ## Updates
 
 - data model for file system*
@@ -106,7 +191,8 @@ for window in [25, 50, 75]:
   - type* (sample, public, private),
   - creator (email, confirm_id), | confirm_id gets emailed to the creator
   - specifications* (window, filter)
-- textnet one backup
+- textnet one backup*
+- project editing
 
 ## App engine deployment
 

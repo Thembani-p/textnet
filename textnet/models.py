@@ -39,13 +39,13 @@ CLOUD_STORAGE_BUCKET = 'kaggler-236517'
 
 class Project:
 
-    def __init__(self, graph_name):
+    def __init__(self, graph_name, gcs_folder='textnet-graphs'):
 
         self.graph_name = graph_name
         self.gcs = False
         if 'GCS' in list(os.environ.keys()):
-            self.gcs = os.environ["GCS"]
-        self.gcs_path = os.path.join('textnet-graphs', graph_name)
+            self.gcs = True
+        self.gcs_path = os.path.join('textnet-backup', graph_name)
 
         if self.gcs:
             client = storage.Client()
@@ -129,7 +129,7 @@ class Project:
     def upload(self, model):
         blob = self.bucket.blob(model.gcs)
         blob.upload_from_filename(model.uri)
-        blob.make_public()
+        # blob.make_public()
 
     def gcs_write(self, object, filename):
         blob = self.bucket.blob(filename)
@@ -167,6 +167,9 @@ class Project:
     def read_text_file(self, filename):
         with open(filename, 'r') as datafile:
             return datafile.read()
+
+    def exists(self, filename):
+        return file_exists(filename)
 
 # towards storage
 # source_uri = os.path.join('gs://', CLOUD_STORAGE_BUCKET, storage_path)
