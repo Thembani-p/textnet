@@ -12,7 +12,7 @@ import os.path
 from .text import *
 from .utils import *
 from .forms import *
-from .models import Project
+from .models import Project, Projects
 # data_path = './input/'
 
 # curl -i -H "Content-Type: application/json" -X POST -d '{"text":"The area of study known as the history of mathematics is primarily an investigation into the origin of discoveries in mathematics and, to a lesser extent, an investigation into the mathematical methods and notation of the past. Before the modern age and the worldwide spread of knowledge, written examples of new mathematical developments have come to light only in a few locales. The most ancient mathematical texts available are Plimpton 322"}' http://localhost:7500/tokeniser
@@ -48,7 +48,7 @@ def gen_graph(tokens,tagged,window):
     unique_words = term_freq.keys()
 
     # for each word add previous and next tokens
-    for i in range(len(unique_words)):
+    for i in range(len(tokenised_text)):
         upper_limit = min(len(tokenised_text)-1,i+window)
         lower_limit = max(0,i-window)
         if(i != lower_limit):
@@ -118,27 +118,12 @@ def gen_graph(tokens,tagged,window):
     return graph
 
 def new_graph(text,window,name,filter):
-
-    # save original
-    graph_name = name.strip()
-    project = Project(graph_name)
-    project.write(text, project.original)
-
     # tag
     tokens, tagged = tag_sentences(text, filter=filter)
 
     # create graph
-    graph = gen_graph(tokens, tagged, window)
+    return gen_graph(tokens, tagged, window)
 
-    # conditions should be applied to the names
-    project.write(graph, project.full)
-
-    # save full igraph
-    graphi = to_igraph(graph)
-    # save_igraph(graphi,graph_name)
-    project.write(graphi, project.graphml)
-
-    return graph_name
 
 def viz_graph(graph,limit=2500):
 
@@ -188,6 +173,7 @@ def graph_options(graph_name):
     # get graph
     # graph = read_text_file(graph_name)
     graph = project.read(project.full)
+    print("Progress: \t full graph \n")
 
     node_count = len(graph['nodes'])
     edge_count = len(graph['edges'])
@@ -198,13 +184,13 @@ def graph_options(graph_name):
     graph_stats['Full Graph']['Node Count'] = node_count
     graph_stats['Full Graph']['Edge Count'] = edge_count
     graph_stats['Full Graph']['Postag Count'] = postag_count
+    print("Progress: \t full graph stats \n")
 
     # get or create limited graph
     # viz_name = ljoin([graph_name,'viz'],'_')
-    if file_exists(project.viz.uri):
-        # limited_graph = read_text_file(viz_name)
-        limited_graph = project.read(project.viz)
-    else:
+    limited_graph = project.read(project.viz) # returns false if the file does not exist
+
+    if not limited_graph:
         limited_graph = viz_graph(graph,1000)
         # write_text_file(limited_graph,viz_name)
         project.write(limited_graph, project.viz)
@@ -212,18 +198,21 @@ def graph_options(graph_name):
     graph_stats['Limited Graph'] = {}
     graph_stats['Limited Graph']['Node Count'] = len(limited_graph['nodes'])
     graph_stats['Limited Graph']['Edge Count'] = len(limited_graph['edges'])
+    print("Progress: \t limited graph stats \n")
 
     # Write an igraph graph to a JSON file for use with Sigma.js
     # https://gist.github.com/jboynyc/11dcd73b84f8da02490e6654d5c07700
 
     # get merged graph
     # merged_name = ljoin([graph_name,'merged'],'_')
-    if file_exists(project.merged.uri):
+    merged_graph = project.read(project.merged)
+    if merged_graph:
         # merged_graph = read_text_file(merged_name)
-        merged_graph = project.read(project.merged)
         graph_stats['Merged Graph'] = {}
         graph_stats['Merged Graph']['Node Count'] = len(merged_graph['nodes'])
         graph_stats['Merged Graph']['Edge Count'] = len(merged_graph['edges'])
+    print("Progress: \t limited graph stats \n")
+
 
     return graph_stats
 
@@ -250,10 +239,21 @@ def to_igraph(graph):
 
     return graphi
 
-def save_igraph(graphi,project_name):
-    # print(graphi)
-    graphi.write_graphml(os.path.join('files','.'.join([project_name,'graphml'])))
-    return True
+def to_networkx(graph):
+    import networkx as nx
+    graphx = nx.Graph()
+    # create edge list
+    edge_list = [(i['source'],i['target']) for i in graph['edges']]
+    node_dict = {i['label']:i for i in graph['nodes']}
+    # create graph from edge list
+    graphx.add_nodes_from(node_dict)
+    graphx.add_edges_from(edge_list)
+    return graphx
+
+# def save_igraph(graphi,project_name):
+#     # print(graphi)
+#     graphi.write_graphml(os.path.join('files','.'.join([project_name,'graphml'])))
+#     return True
 
 def create_merge_table(graph,graph_dict):
     # TODO:
@@ -313,9 +313,9 @@ def merge_candidates(graph_name):
         # graph_dict = read_text_file(graph_name)
         graph_dict = project.read(project.full)
 
-        graphi = to_igraph(graph_dict)
+        graphi = to_networkx(graph_dict)
 
-        merge_table = create_merge_table(graphi,graph_dict)
+        merge_table = create_merge_table(graphi, graph_dict)
 
         # write_text_file(merge_table, merge_filename)
         project.write(merge_table, project.merge)
@@ -339,10 +339,7 @@ def merge_nodes(graph_name):
     project = Project(graph_name)
 
     # accept_table = pull_merge_form_data(graph_name)
-    if file_exists(project.merge_form.uri):
-        accept_table = project.read(project.merge_form)
-    else:
-        accept_table = False
+    accept_table = project.read(project.merge_form)
     # graph = read_text_file(graph_name)
     graph = project.read(project.full)
 
@@ -372,7 +369,7 @@ def merge_nodes(graph_name):
 
     # write_text_file(graph, ljoin([graph_name,'merged'],'_
     project.write(graph, project.merged)
-    graphi = to_igraph(graph)
+    graphi = to_networkx(graph)
     # save_igraph(graphi,graph_name)
     project.write(graphi, project.graphml)
 

@@ -47,6 +47,11 @@ $ source tn_env/bin/activate
 (tn_env) $ pip install -r requirements.txt
 ```
 
+```sh
+python -m ipykernel install --user --name tn_env --display-name "textnet"
+```
+
+
 Download nltk files.
 
 ```python

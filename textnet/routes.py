@@ -1,6 +1,7 @@
 
 
 import os
+import json
 from flask import render_template, make_response, request, Blueprint, Response, \
                      redirect, send_from_directory, jsonify, url_for, flash
 from flask_paginate import Pagination, get_page_parameter
@@ -10,10 +11,12 @@ from flask_paginate import Pagination, get_page_parameter
 
 # get textnet functions
 from textnet import app
-from textnet.utils import *
-from textnet.text import *
-from textnet.graphs import *
-from textnet.forms import *
+from textnet.models import Project, Projects
+from textnet.utils import read_file
+from textnet.text import tokeniser, tag_sentences
+from textnet.graphs import new_graph, to_networkx, graph_options, \
+                            merge_candidates, merge_nodes, gen_graph
+from textnet.forms import CreateTextnet
 
 routes_blueprint = Blueprint('routes', __name__,)
 
@@ -39,6 +42,7 @@ def index():
     # otherwise back to form
     # print(request.method)
     form = CreateTextnet(request.form)
+    print(form.validate_on_submit(), request.method)
     if form.validate_on_submit() and request.method == 'POST':
         # there should be no puntuation in the title
         # spaces will be replaced by underscores
@@ -51,8 +55,27 @@ def index():
 
         # strip punctuation for safer urls
         graph_name = form.name.data.translate(str.maketrans('', '', string.punctuation))
+        graph_name = graph_name.strip()
+        print("project name: \t {} \n".format(graph_name))
 
-        graph_name = new_graph(form.textline.data, form.window.data, graph_name, filter)
+        # create graph
+        graph = new_graph(form.textline.data, form.window.data, graph_name, filter)
+        print("graph")
+
+        # save original text
+        project = Project(graph_name)
+        project.write(form.textline.data, project.original)
+        print("full text")
+
+        # save graph text
+        project.write(graph, project.full)
+        print("full graph")
+
+        # save download version (graphml)
+        graphi = to_networkx(graph)
+        # save_igraph(graphi,graph_name)
+        project.write(graphi, project.graphml)
+        print("full graphml")
 
         meta = {
             'name': graph_name,
@@ -61,8 +84,8 @@ def index():
             'filter': form.filter.data
         }
 
-        project = Project(graph_name)
         project.write(meta, project.meta)
+        print("write project meta")
 
         return redirect(url_for('routes.graph_options_view',graph_name=graph_name))
     else:
@@ -97,7 +120,9 @@ def graph_options_view(graph_name):
 
     try:
         project = Project(graph_name)
+        print("project")
         meta = project.read(project.meta)
+        print("meta", meta)
 
         return render_template(
             "options.html",
@@ -122,13 +147,13 @@ def merge_view(graph_name):
     # create merge table or pull the existing one
     try:
         project = Project(graph_name)
-        graph = project.read(project.full)
+        graph = project.read(project.full) # if this fails the project doesn't exist
+        if not graph:
+            flash("Project {} doesn't exists maybe create one?".format(graph_name.strip()), 'danger')
+            return redirect(url_for('routes.index'))
 
         merge_table = merge_candidates(graph_name)
-        if file_exists(project.merge_form.uri):
-            form_data = project.read(project.merge_form)
-        else:
-            form_data = False
+        form_data = project.read(project.merge_form)
         # form_data = pull_merge_form_data(graph_name)
 
         print('form data',form_data)
@@ -149,7 +174,8 @@ def merge_view(graph_name):
             # this provides the accept/reject form for merging nodes
             return render_template("merge.html", merge_table=merge_table, project_name=graph_name)
     except:
-        flash("Project {} doesn't exists maybe create one?".format(graph_name.strip()), 'danger')
+        flash("""Something went wrong with {}.
+                 Please email us at thembani.p21@googlemail.com and we'll have a look""".format(graph_name.strip()), 'danger')
         return redirect(url_for('routes.index'))
 
 @routes_blueprint.route("/visualisation/<string:graph_name>", methods=['GET','POST'])
@@ -163,7 +189,11 @@ def visualisation(graph_name):
 @routes_blueprint.route("/files/<string:graph_name>/<string:filename>", methods=['GET'])
 def get_files(graph_name, filename):
     # accept graph and visualise it
-    return read_file(os.path.join(graph_name, filename))
+    project = Project(graph_name)
+    if project.gcs:
+        return json.dumps(project.read(project.viz)) # provides very limited functionality. Could actually be used singularly
+    else:
+        return read_file(os.path.join(graph_name, filename))
 
 @routes_blueprint.route("/projects", defaults={'type': None})
 @routes_blueprint.route("/projects/<string:type>")
@@ -175,7 +205,8 @@ def projects(type):
 
     page = request.args.get(get_page_parameter(), type=int, default=1)
 
-    projects_folders = os.listdir('files')
+    # should come from models
+    # projects_folders = os.listdir('files')
 
     # projects = []
     # for i in projects_folders:
@@ -185,18 +216,16 @@ def projects(type):
     #         projects.append(project.read(project.meta))
 
     # projects = [Project(i).read(Project(i).meta) for i in projects_folders if Project(i).exists(Project(i).meta.uri)]
+    projects = Projects()
+    project_list = projects.get_metas()
+    print("project_list", project_list)
 
-    projects = [Project(i).read(Project(i).meta) for i in projects_folders]
-    # print(projects)
-
-    types = [i['type'] for i in projects]
-
-    if type != None and type in types:
-        projects = [i for i in projects if i['type'] == type]
+    if type != None:
+        project_list = projects.filter_projects(type)
 
     pagination = Pagination(
         page=page,
-        total=len(projects),
+        total=len(project_list),
         search=search,
         per_page_parameter=PAGE_NUMBER,
         record_name='projects'
@@ -206,7 +235,7 @@ def projects(type):
     start = (page-1)*PAGE_NUMBER
     end = (page)*PAGE_NUMBER
 
-    return render_template("projects.html", projects=projects[start:end], pagination=pagination)
+    return render_template("projects.html", projects=project_list[start:end], pagination=pagination)
 
 @routes_blueprint.route("/tokeniser", methods=['POST'])
 def basic_tokeniser():

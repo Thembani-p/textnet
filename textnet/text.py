@@ -3,12 +3,14 @@
 # ------------------------------------------------------------------------------
 # load packages
 # ------------------------------------------------------------------------------
+import os
 import re
 import json
 import random
 import string
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
+
 
 import nltk
 from nltk import ne_chunk, pos_tag
@@ -23,8 +25,13 @@ from nltk.tree import Tree
 # http://www.nltk.org/_modules/nltk/tag/stanford.html#CoreNLPPOSTagger
 from nltk.tag.stanford import StanfordPOSTagger
 
+current_path = os.path.dirname(os.path.realpath(__file__))
+
 path_to_model = "input/stanford/stanford-postagger-full-2018-10-16/models/english-bidirectional-distsim.tagger"
 path_to_jar   = "input/stanford/stanford-postagger-full-2018-10-16/stanford-postagger.jar"
+
+path_to_model = os.path.join(current_path, '..', path_to_model)
+path_to_jar = os.path.join(current_path, '..', path_to_jar)
 
 standford_tagger = StanfordPOSTagger(path_to_model, path_to_jar)
 standford_tagger.java_options = '-mx16384m'          ### Setting higher memory limit for long sentences
@@ -34,6 +41,9 @@ from nltk.tag import StanfordNERTagger
 
 path_to_model = "input/stanford/stanford-ner-2014-08-27/classifiers/english.all.3class.distsim.crf.ser.gz"
 path_to_jar   = "input/stanford/stanford-ner-2014-08-27/stanford-ner.jar"
+
+path_to_model = os.path.join(current_path, '..', path_to_model)
+path_to_jar = os.path.join(current_path, '..', path_to_jar)
 
 standford_ner = StanfordNERTagger(path_to_model, path_to_jar)
 standford_ner.java_options = '-mx16384m'          ### Setting higher memory limit for long sentences
@@ -47,7 +57,6 @@ standford_ner.java_options = '-mx16384m'
 # tokenisation
 def tokeniser(text):
     return nltk.word_tokenize(text)
-
 
 # tagging
 def tn_tagger(tokenised_text, tagger='stanford'):
@@ -140,6 +149,11 @@ def chunks_by_sentence(sentences,tagger='stanford'):
             all_chunks += get_continuous_chunks(chunked)
         return all_chunks
 
+def list_splits(l, n=1000):
+    """Yield successive n-sized chunks from l."""
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
+
 def tag_sentences(text,tagger='stanford', filter=None):
     # https://textminingonline.com/dive-into-nltk-part-ii-sentence-tokenize-and-word-tokenize
     # taggs tokenised list
@@ -148,8 +162,12 @@ def tag_sentences(text,tagger='stanford', filter=None):
     # print(sentences)
     # stanfrod POS takes quite a while to run
     #  thus the stanford option should only be availble for looged in users
-    tagged = chunks_by_sentence(sentences,tagger)
-    # print(tagged)
+
+    # for handling larger datasets split sentences (1000 at a time)
+    tagged = []
+    for sentences_split in list_splits(sentences):
+        tagged += chunks_by_sentence(sentences_split, tagger)
+    print(tagged)
 
     if filter is not None:
         tagged = [elem for elem in tagged if elem[1].lower() in [filter, filter+'s']]
@@ -158,6 +176,8 @@ def tag_sentences(text,tagger='stanford', filter=None):
     # if string is punctuation set tag to PUNCT
     regex = re.compile('[%s]' % re.escape(string.punctuation+'—'))
     tagged = {elem[0]:'PUNCT' if (regex.match(elem[0]) or (len(elem[0]) == 0)) else elem[1] for elem in tagged}
+    print("# ---------------------------------------------------------------- #")
+    print(tagged)
 
     return tokens,tagged
 

@@ -59,12 +59,20 @@ class CreateTextnet(Form):
             return False
 
         project = Project(self.name.data.strip())
-        try:
-            graph = project.read(project.full)
+        graph = project.read(project.full)
+        if graph:
+            print("Project already exists :(")
             return False
-        except:
-            self.name.errors.append("Project already exists :(")
+        else:
             return True
+            
+        # try:
+        #     graph = project.read(project.full)
+        #     print("Project already exists :(")
+        #     return False
+        # except:
+        #     self.name.errors.append("Project already exists :(")
+        #     return True
 
 # class RegisterForm(Form):
 #     email = TextField(
