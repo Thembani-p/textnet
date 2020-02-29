@@ -146,11 +146,13 @@ def merge_view(graph_name):
     """
     # create merge table or pull the existing one
     try:
+        print("Merge ")
         project = Project(graph_name)
         graph = project.read(project.full) # if this fails the project doesn't exist
         if not graph:
             flash("Project {} doesn't exists maybe create one?".format(graph_name.strip()), 'danger')
             return redirect(url_for('routes.index'))
+            print("New graph ")
 
         merge_table = merge_candidates(graph_name)
         form_data = project.read(project.merge_form)

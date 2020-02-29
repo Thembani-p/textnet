@@ -313,7 +313,8 @@ def merge_candidates(graph_name):
         # graph_dict = read_text_file(graph_name)
         graph_dict = project.read(project.full)
 
-        graphi = to_networkx(graph_dict)
+        # graphi = to_networkx(graph_dict)
+        graphi = to_igraph(graph_dict) # requires shortest pth which is available in igraph
 
         merge_table = create_merge_table(graphi, graph_dict)
 
@@ -326,7 +327,7 @@ def merge_candidates(graph_name):
         # merge_table = json_if_exists(merge_filename)
         merge_table = project.read(project.merge)
         # print('merge table',merge_table)
-
+    print("merge table complete")
     return merge_table
 
 def merge_nodes(graph_name):
