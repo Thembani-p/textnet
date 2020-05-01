@@ -34,7 +34,7 @@ import urllib.request
 # its also not clear how a pickle is written to cloud storage
 # https://github.com/GoogleCloudPlatform/python-docs-samples/blob/master/codelabs/flex_and_vision/main.py
 # key id: baaba1c89e122af096e4157bf724ae939c4a1ee2
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'textnet-212812-baaba1c89e12.json'
+# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'textnet-212812-baaba1c89e12.json'
 CLOUD_STORAGE_BUCKET = 'textnet'
 
 
@@ -90,7 +90,7 @@ class Projects:
     def read_json(self, filename):
         if self.gcs:
             blob = self.bucket.blob(filename)
-            file = json.loads(blob.download_as_string())
+            file = json.loads(blob.download_as_string().decode('utf-8'))
         else:
             file = self.read_json_file(filename)
 
@@ -230,9 +230,9 @@ class Project:
 
             try:
                 if model.ext == 'txt':
-                    file = blob.download_as_string()
+                    file = blob.download_as_string().decode('utf-8')
                 elif model.ext == 'json':
-                    file = json.loads(blob.download_as_string())
+                    file = json.loads(blob.download_as_string().decode('utf-8'))
             except:
                 # raises google.cloud.exceptions.NotFound
                 return False

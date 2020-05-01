@@ -12,7 +12,8 @@ env.sh
 tn_env
 
 # data files
-stanford
+stanford/
+notebooks/
 files/
 backup/
 *.json

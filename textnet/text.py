@@ -34,8 +34,8 @@ path_to_model = os.path.join(current_path, '..', path_to_model)
 path_to_jar = os.path.join(current_path, '..', path_to_jar)
 
 standford_tagger = StanfordPOSTagger(path_to_model, path_to_jar)
-standford_tagger.java_options = '-mx16384m'          ### Setting higher memory limit for long sentences
-standford_tagger.java_options = '-mx16384m'
+standford_tagger.java_options = '-mx1024m'          ### Setting higher memory limit for long sentences
+
 # https://pythonprogramming.net/named-entity-recognition-stanford-ner-tagger/
 from nltk.tag import StanfordNERTagger
 
@@ -46,8 +46,7 @@ path_to_model = os.path.join(current_path, '..', path_to_model)
 path_to_jar = os.path.join(current_path, '..', path_to_jar)
 
 standford_ner = StanfordNERTagger(path_to_model, path_to_jar)
-standford_ner.java_options = '-mx16384m'          ### Setting higher memory limit for long sentences
-standford_ner.java_options = '-mx16384m'
+standford_ner.java_options = '-mx1024m'          ### Setting higher memory limit for long sentences
 
 
 
@@ -167,7 +166,7 @@ def tag_sentences(text,tagger='stanford', filter=None):
     tagged = []
     for sentences_split in list_splits(sentences):
         tagged += chunks_by_sentence(sentences_split, tagger)
-    print(tagged)
+    # print(tagged)
 
     if filter is not None:
         tagged = [elem for elem in tagged if elem[1].lower() in [filter, filter+'s']]
@@ -177,7 +176,7 @@ def tag_sentences(text,tagger='stanford', filter=None):
     regex = re.compile('[%s]' % re.escape(string.punctuation+'—'))
     tagged = {elem[0]:'PUNCT' if (regex.match(elem[0]) or (len(elem[0]) == 0)) else elem[1] for elem in tagged}
     print("# ---------------------------------------------------------------- #")
-    print(tagged)
+    # print(tagged)
 
     return tokens,tagged
 

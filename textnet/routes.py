@@ -2,6 +2,7 @@
 
 import os
 import json
+import string
 from flask import render_template, make_response, request, Blueprint, Response, \
                      redirect, send_from_directory, jsonify, url_for, flash
 from flask_paginate import Pagination, get_page_parameter
@@ -59,12 +60,12 @@ def index():
         print("project name: \t {} \n".format(graph_name))
 
         # create graph
-        graph = new_graph(form.textline.data, form.window.data, graph_name, filter)
+        graph = new_graph(form.textline.data.encode('utf-8').decode(), form.window.data, graph_name, filter)
         print("graph")
 
         # save original text
         project = Project(graph_name)
-        project.write(form.textline.data, project.original)
+        project.write(form.textline.data.encode('utf-8').decode(), project.original)
         print("full text")
 
         # save graph text
@@ -158,7 +159,7 @@ def merge_view(graph_name):
         form_data = project.read(project.merge_form)
         # form_data = pull_merge_form_data(graph_name)
 
-        print('form data',form_data)
+        # print('form data',form_data)
 
         if request.method == 'POST':
             # store the form output
