@@ -18,6 +18,7 @@ RUN apt-get install -y python-igraph
 
 # We copy just the requirements.txt first to leverage Docker cache
 COPY ./requirements.txt /app/requirements.txt
+COPY ./<google-service-account.json> /app/<google-service-account.json>
 
 ENV APP_HOME /app
 WORKDIR $APP_HOME
@@ -27,6 +28,7 @@ RUN python3 -m nltk.downloader punkt -d /usr/nltk_data
 RUN python3 -m nltk.downloader averaged_perceptron_tagger -d /usr/nltk_data
 RUN python3 -m nltk.downloader maxent_treebank_pos_tagger -d /usr/nltk_data
 ENV GCS=True
+ENV GOOGLE_APPLICATION_CREDENTIALS=<google-service-account.json>
 
 # install java / the old way
 #RUN add-apt-repository ppa:webupd8team/java

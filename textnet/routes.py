@@ -23,6 +23,9 @@ routes_blueprint = Blueprint('routes', __name__,)
 
 PAGE_NUMBER = 10
 
+projects_object = Projects()
+# project_list = projects.get_metas() # this should have an age
+
 @routes_blueprint.route("/", methods=['POST','GET'])
 def index():
     # TODO:
@@ -64,18 +67,18 @@ def index():
         print("graph")
 
         # save original text
-        project = Project(graph_name)
-        project.write(form.textline.data.encode('utf-8').decode(), project.original)
+        project_object = Project(graph_name)
+        project_object.write(form.textline.data.encode('utf-8').decode(), project_object.original)
         print("full text")
 
         # save graph text
-        project.write(graph, project.full)
+        project_object.write(graph, project_object.full)
         print("full graph")
 
         # save download version (graphml)
         graphi = to_networkx(graph)
         # save_igraph(graphi,graph_name)
-        project.write(graphi, project.graphml)
+        project_object.write(graphi, project_object.graphml)
         print("full graphml")
 
         meta = {
@@ -85,7 +88,8 @@ def index():
             'filter': form.filter.data
         }
 
-        project.write(meta, project.meta)
+        project_object.write(meta, project_object.meta)
+        projects_object.metas.append(meta) # update project list
         print("write project meta")
 
         return redirect(url_for('routes.graph_options_view',graph_name=graph_name))
@@ -120,9 +124,9 @@ def graph_options_view(graph_name):
     #       type
 
     try:
-        project = Project(graph_name)
+        project_object = Project(graph_name)
         print("project")
-        meta = project.read(project.meta)
+        meta = project_object.read(project_object.meta)
         print("meta", meta)
 
         return render_template(
@@ -148,15 +152,15 @@ def merge_view(graph_name):
     # create merge table or pull the existing one
     try:
         print("Merge ")
-        project = Project(graph_name)
-        graph = project.read(project.full) # if this fails the project doesn't exist
+        project_object = Project(graph_name)
+        graph = project_object.read(project_object.full) # if this fails the project doesn't exist
         if not graph:
             flash("Project {} doesn't exists maybe create one?".format(graph_name.strip()), 'danger')
             return redirect(url_for('routes.index'))
             print("New graph ")
 
         merge_table = merge_candidates(graph_name)
-        form_data = project.read(project.merge_form)
+        form_data = project_object.read(project_object.merge_form)
         # form_data = pull_merge_form_data(graph_name)
 
         # print('form data',form_data)
@@ -164,7 +168,7 @@ def merge_view(graph_name):
         if request.method == 'POST':
             # store the form output
             # save_merge_form_data(request.form,graph_name)
-            project.write(request.form, project.merge_form)
+            project_object.write(request.form, project_object.merge_form)
 
             # merge the nodes and store merged graph
             merge_nodes(graph_name)
@@ -192,9 +196,9 @@ def visualisation(graph_name):
 @routes_blueprint.route("/files/<string:graph_name>/<string:filename>", methods=['GET'])
 def get_files(graph_name, filename):
     # accept graph and visualise it
-    project = Project(graph_name)
-    if project.gcs:
-        return json.dumps(project.read(project.viz)) # provides very limited functionality. Could actually be used singularly
+    project_object = Project(graph_name)
+    if project_object.gcs:
+        return json.dumps(project_object.read(project_object.viz)) # provides very limited functionality. Could actually be used singularly
     else:
         return read_file(os.path.join(graph_name, filename))
 
@@ -207,6 +211,7 @@ def projects(type):
         search = True
 
     page = request.args.get(get_page_parameter(), type=int, default=1)
+    global projects_object
 
     # should come from models
     # projects_folders = os.listdir('files')
@@ -219,12 +224,12 @@ def projects(type):
     #         projects.append(project.read(project.meta))
 
     # projects = [Project(i).read(Project(i).meta) for i in projects_folders if Project(i).exists(Project(i).meta.uri)]
-    projects = Projects()
-    project_list = projects.get_metas()
-    print("project_list", project_list)
+    # print("project_list", project_list)
 
     if type != None:
-        project_list = projects.filter_projects(type)
+        project_list = sorted(projects_object.filter_projects(type), key = lambda i: i['name'].lower())
+    else:
+        project_list = sorted(projects_object.metas, key = lambda i: i['name'].lower()) # sorting should move to models
 
     pagination = Pagination(
         page=page,

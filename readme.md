@@ -217,3 +217,18 @@ for fail in failed:
 ## Running locally
 
 If you're running the app from a virtual environment don't use `python app.py` unless you specify the python shebang to something other than: `#!/usr/bin/env python`. Preferably use `flask run`.
+
+## Cloud run deployment
+
+```sh
+gcloud builds submit --tag gcr.io/textnet-212812/textnet-cloud-run
+```
+
+```sh
+gcloud run deploy --image gcr.io/textnet-212812/textnet-cloud-run --platform managed --memory 2Gi
+```
+
+Cloud run versions currently running
+
+- https://textnet-cloud-run-uh2oa34tla-ue.a.run.app/
+- https://textnet-cloud-run-uh2oa34tla-ew.a.run.app/
